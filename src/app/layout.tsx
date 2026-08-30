@@ -27,6 +27,9 @@ export const metadata: Metadata = {
     default: "Aurevia Jewels | Elegant Jewelry & Ornaments",
     template: "%s",
   },
+  alternates: {
+    canonical: siteConfig.url,
+  },
   description:
     "Discover elegant necklaces, earrings, rings, bangles, bridal sets and jewelry collections from Aurevia Jewels. Browse online and order directly through WhatsApp.",
   keywords: [
