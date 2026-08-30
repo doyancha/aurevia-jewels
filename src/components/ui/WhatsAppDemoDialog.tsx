@@ -152,13 +152,13 @@ export function WhatsAppDemoProvider({ children }: { children: React.ReactNode }
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.22em] text-champagne-dark font-medium">
-                    WhatsApp Demo
+                    WhatsApp Preview
                   </p>
                   <h2 id="whatsapp-demo-title" className="mt-2 text-2xl sm:text-3xl font-serif">
                     {payload.title}
                   </h2>
                   <p id="whatsapp-demo-description" className="mt-3 max-w-xl text-sm sm:text-base text-charcoal/70">
-                    Demo storefront preview. Connect a real WhatsApp Business number to enable direct ordering.
+                    This preview shows the message that would be sent once a live WhatsApp Business number is connected.
                   </p>
                 </div>
                 <button
@@ -185,7 +185,7 @@ export function WhatsAppDemoProvider({ children }: { children: React.ReactNode }
 
               <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-charcoal/65">
-                  Demo storefront, not a live ordering channel.
+                  Preview only, not a live ordering channel.
                 </p>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <button

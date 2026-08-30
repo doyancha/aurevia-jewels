@@ -5,7 +5,7 @@ import { siteConfig } from '@/config/site';
 export const metadata: Metadata = {
   title: 'Privacy Policy | Aurevia Jewels',
   description:
-    'Privacy guidance for the Aurevia Jewels demo storefront, including WhatsApp enquiries, hosting, and third-party services.',
+    'Privacy guidance for Aurevia Jewels, including WhatsApp enquiries, hosting, and third-party services.',
 };
 
 export default function PrivacyPage() {
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             External image hosts and third-party services may receive basic request data when you load a page or open outbound links. If the business later adds forms, newsletters, analytics, or other services, this policy should be updated to match that setup.
           </p>
           <p className="text-gray-600">
-            Contact details shown in demo mode are placeholders only and are not live business channels. Demo notice: {siteConfig.demoNotice}
+            {siteConfig.demoNotice}
           </p>
         </div>
       </div>

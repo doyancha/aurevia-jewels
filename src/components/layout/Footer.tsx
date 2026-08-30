@@ -1,7 +1,5 @@
 import Link from 'next/link';
-import { Clock3, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { siteConfig } from '@/config/site';
-import { isDemoStorefront } from '@/lib/utils';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -9,7 +7,7 @@ export function Footer() {
   return (
     <footer className="bg-charcoal text-ivory pt-16 pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[minmax(0,0.92fr)_repeat(3,minmax(0,1fr))] gap-12 lg:gap-8 mb-16">
           {/* Brand Column */}
           <div className="space-y-6">
             <Link href="/" className="inline-block">
@@ -20,33 +18,9 @@ export function Footer() {
             <p className="text-ivory/80 text-sm max-w-sm leading-relaxed">
               {siteConfig.tagline}
             </p>
-            <div className="space-y-3 text-sm text-ivory/75">
-              <p className="flex items-center gap-2">
-                <MessageCircle size={14} className="text-champagne" />
-                Demo WhatsApp ordering preview
-              </p>
-              <p className="flex items-center gap-2">
-                <Phone size={14} className="text-champagne" />
-                {siteConfig.contact.phone}
-              </p>
-              <p className="flex items-center gap-2">
-                <Mail size={14} className="text-champagne" />
-                {siteConfig.contact.email}
-              </p>
-              <p className="flex items-center gap-2">
-                <MapPin size={14} className="text-champagne" />
-                {siteConfig.contact.address} - Demo location
-              </p>
-              <p className="flex items-center gap-2">
-                <Clock3 size={14} className="text-champagne" />
-                {siteConfig.contact.serviceHours}
-              </p>
-              {isDemoStorefront() && (
-                <p className="pt-2 text-xs leading-relaxed text-ivory/60">
-                  {siteConfig.demoNotice}
-                </p>
-              )}
-            </div>
+            <p className="text-xs leading-relaxed text-ivory/65 max-w-sm">
+              {siteConfig.demoNotice}
+            </p>
           </div>
 
           {/* Quick Links */}
@@ -127,7 +101,7 @@ export function Footer() {
           <p className="text-ivory/60 text-sm">
             &copy; {currentYear} {siteConfig.name}. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <Link href="/privacy" className="text-ivory/60 hover:text-white text-sm transition-colors">
               Privacy Policy
             </Link>
@@ -135,9 +109,15 @@ export function Footer() {
               Terms of Service
             </Link>
             {siteConfig.socialProfiles.map((profile) => (
-              <span key={profile.label} className="text-ivory/50 text-sm">
-                {profile.label} Demo
-              </span>
+              <a
+                key={profile.label}
+                href={profile.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ivory/60 hover:text-white text-sm transition-colors"
+              >
+                {profile.label}
+              </a>
             ))}
           </div>
         </div>

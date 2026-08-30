@@ -9,7 +9,7 @@ export function FloatingWhatsApp() {
       initial={{ opacity: 0, scale: 0, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ delay: 2, duration: 0.5, type: "spring", stiffness: 200, damping: 20 }}
-      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40"
+      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] sm:right-6 z-40"
     >
       <div className="relative group">
         <div className="absolute -top-12 right-0 bg-white text-charcoal text-sm py-1.5 px-3 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap font-medium">

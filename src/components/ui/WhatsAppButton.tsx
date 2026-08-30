@@ -90,7 +90,7 @@ export function WhatsAppButton({
       <button
         type="button"
         onClick={() => {
-          openDemoWhatsApp({ title: 'WhatsApp Demo', message: demoMessage });
+          openDemoWhatsApp({ title: 'WhatsApp Preview', message: demoMessage });
           onClick?.();
         }}
         className={sharedClassName}

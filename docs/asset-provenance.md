@@ -1,6 +1,6 @@
 # Aurevia Jewels Asset Provenance
 
-Date verified: 2026-08-30
+Date verified: 2026-08-31
 
 This document records the runtime storefront imagery currently self-hosted under `public/images/source/`.
 
@@ -49,4 +49,24 @@ All storefront photography below is currently self-hosted for runtime use. The o
 
 - Runtime storefront image dependency on `images.unsplash.com` has been removed from code.
 - Local self-hosting is now the runtime default for storefront photography.
+- Several v1.1 remediation images were added from Pexels and self-hosted locally to improve category-to-image matching.
 - Each retained image still requires business/legal source verification before any real commercial launch.
+
+## v1.1 additions
+
+| Local file | Current usage | Source provider | Original source URL | Status | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `public/images/source/pexels-pearl-necklace-set-33370257.jpg` | Celestial Pearl Necklace | Pexels | `https://images.pexels.com/photos/33370257/pexels-photo-33370257.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for clearer pearl necklace presentation. |
+| `public/images/source/pexels-gold-choker-6228276.jpg` | Golden Bloom Choker | Pexels | `https://images.pexels.com/photos/6228276/pexels-photo-6228276.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for a clearer choker silhouette. |
+| `public/images/source/pexels-pearl-drop-earrings-23495777.jpg` | Pearl Drop Earrings | Pexels | `https://images.pexels.com/photos/23495777/pexels-photo-23495777.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for clearer drop-earring identification. |
+| `public/images/source/pexels-diamond-earrings-2849743.jpg` | Aurora Crystal Earrings | Pexels | `https://images.pexels.com/photos/2849743/pexels-photo-2849743.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for stronger crystal-earring readability. |
+| `public/images/source/pexels-stud-earrings-5370641.jpg` | Floral Gold-Tone Studs | Pexels | `https://images.pexels.com/photos/5370641/pexels-photo-5370641.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for stud-earring silhouette clarity. |
+| `public/images/source/pexels-hoop-earrings-18075558.jpg` | Moonlight Hoop Earrings | Pexels | `https://images.pexels.com/photos/18075558/pexels-photo-18075558.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for explicit hoop-earring visibility. |
+| `public/images/source/pexels-gold-bangles-12579906.jpg` | Royal Heritage Bangle Set | Pexels | `https://images.pexels.com/photos/12579906/pexels-photo-12579906.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for a clear bangle-set presentation. |
+| `public/images/source/pexels-textured-bangles-37485309.jpg` | Classic Textured Bangles | Pexels | `https://images.pexels.com/photos/37485309/pexels-photo-37485309.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for textured bangle readability. |
+| `public/images/source/pexels-bridal-set-28347075.jpg` | Noor Bridal Jewelry Set | Pexels | `https://images.pexels.com/photos/28347075/pexels-photo-28347075.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for bridal-set presentation. |
+| `public/images/source/pexels-bridal-set-28347079.jpg` | Maharani Statement Set | Pexels | `https://images.pexels.com/photos/28347079/pexels-photo-28347079.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for statement bridal-set presentation. |
+| `public/images/source/pexels-pearl-bridal-set-6716445.jpg` | Ivory Pearl Bridal Set | Pexels | `https://images.pexels.com/photos/6716445/pexels-photo-6716445.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for pearl bridal-set presentation. |
+| `public/images/source/pexels-rose-gold-set-5116272.jpg` | Rosewood Celebration Set | Pexels | `https://images.pexels.com/photos/5116272/pexels-photo-5116272.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for a rose-gold jewelry-set presentation. |
+| `public/images/source/pexels-gold-floral-set-29385412.jpg` | Golden Petal Jewelry Set | Pexels | `https://images.pexels.com/photos/29385412/pexels-photo-29385412.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for floral jewelry-set presentation. |
+| `public/images/source/pexels-sapphire-set-32988651.jpg` | Sapphire Elegance Set | Pexels | `https://images.pexels.com/photos/32988651/pexels-photo-32988651.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for sapphire-set presentation. |

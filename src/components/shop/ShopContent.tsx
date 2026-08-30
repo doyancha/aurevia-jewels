@@ -93,7 +93,7 @@ export function ShopContent({ initialProducts }: ShopContentProps) {
             <div className="relative flex-grow sm:flex-grow-0 sm:w-64">
               <input
                 type="text"
-                placeholder="Search jewelry..."
+                placeholder="Search products, collections or product codes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white"
@@ -139,8 +139,8 @@ export function ShopContent({ initialProducts }: ShopContentProps) {
           <ProductGrid products={filteredAndSortedProducts} />
         ) : (
           <div className="text-center py-20 bg-gray-50 rounded-2xl border border-gray-100">
-            <h3 className="text-xl font-serif text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-500 mb-6">We couldn&apos;t find any jewelry matching your search.</p>
+            <h3 className="text-xl font-serif text-gray-900 mb-2">No jewelry matched your search.</h3>
+            <p className="text-gray-500 mb-6">Try a product name, collection, or code.</p>
             <button
               onClick={() => {
                 setSelectedCategory('All');

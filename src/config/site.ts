@@ -1,7 +1,7 @@
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://aureviajewels.example';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://aurevia-jewels-gamma.vercel.app';
 
 export const siteConfig = {
-  /** Demo storefront flag. Keep true until real business channels are configured. */
+  /** Storefront mode flag for safe demo ordering flow. */
   isDemo: true,
 
   /** Brand name displayed throughout the site */
@@ -23,28 +23,28 @@ export const siteConfig = {
   /** Site URL for SEO and canonical links */
   url: siteUrl,
 
-  /** Business contact details shown in demo mode */
+  /** Business contact details are intentionally left blank until real channels exist */
   contact: {
-    email: 'contact@aureviajewels.example',
-    phone: 'Demo contact — WhatsApp/phone number not configured',
-    address: 'Gulshan, Dhaka, Bangladesh',
-    serviceHours: 'Saturday – Thursday: 10:00 AM – 8:00 PM',
+    email: '',
+    phone: '',
+    address: '',
+    serviceHours: '',
   },
 
-  /** Demo social profile URLs */
+  /** Temporary external social links used for navigation only */
   socialProfiles: [
-    { label: 'Facebook', href: 'https://example.com/aurevia-jewels/facebook' },
-    { label: 'Instagram', href: 'https://example.com/aurevia-jewels/instagram' },
-    { label: 'Pinterest', href: 'https://example.com/aurevia-jewels/pinterest' },
+    { label: 'Facebook', href: 'https://www.facebook.com/' },
+    { label: 'Instagram', href: 'https://www.instagram.com/' },
+    { label: 'Pinterest', href: 'https://www.pinterest.com/' },
   ],
 
   /** Currency settings */
   currency: 'BDT',
   currencySymbol: '৳',
 
-  /** Demo storefront notice used on contact/footer surfaces */
+  /** Short disclosure shown where a demo-safe reminder is needed */
   demoNotice:
-    'Aurevia Jewels is currently presented as a demonstration storefront. Contact and social details shown in demo mode are not live business channels.',
+    'Aurevia Jewels is currently presented as a demonstration storefront. Ordering and contact channels are not yet active.',
 
   /** Delivery policy */
   delivery: {

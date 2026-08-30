@@ -17,8 +17,8 @@ export const products: Product[] = [
     occasion: ['Evening Wear', 'Wedding Guest', 'Anniversary'],
     productCode: 'AJ-N001',
     images: [
-      '/images/source/photo-1599643478518-a784e5dc4c8f.jpg',
-      '/images/source/photo-1596944924616-7b38e7cfac36.jpg'
+      '/images/source/pexels-pearl-necklace-set-33370257.jpg',
+      '/images/source/photo-1599643478518-a784e5dc4c8f.jpg'
     ],
     featured: true,
     newArrival: false,
@@ -41,7 +41,7 @@ export const products: Product[] = [
     occasion: ['Party', 'Casual Chic'],
     productCode: 'AJ-N002',
     images: [
-      '/images/source/photo-1535632066927-ab7c9ab60908.jpg',
+      '/images/source/photo-1506630448388-4e683c67ddb0.jpg',
       '/images/source/photo-1630019852942-f89202989a59.jpg'
     ],
     featured: true,
@@ -65,8 +65,8 @@ export const products: Product[] = [
     occasion: ['Festive', 'Party'],
     productCode: 'AJ-N003',
     images: [
-      '/images/source/photo-1599643478518-a784e5dc4c8f.jpg',
-      '/images/source/photo-1630019852942-f89202989a59.jpg'
+      '/images/source/pexels-gold-choker-6228276.jpg',
+      '/images/source/photo-1611085583191-a3b181a88401.jpg'
     ],
     featured: false,
     newArrival: true,
@@ -89,8 +89,8 @@ export const products: Product[] = [
     occasion: ['Everyday', 'Work Wear'],
     productCode: 'AJ-N004',
     images: [
-      '/images/source/photo-1617038260897-41a1f14a8ca0.jpg',
-      '/images/source/photo-1610694955371-d4a3e0ce4b52.jpg'
+      '/images/source/photo-1610694955371-d4a3e0ce4b52.jpg',
+      '/images/source/photo-1630019852942-f89202989a59.jpg'
     ],
     featured: false,
     newArrival: false,
@@ -115,8 +115,8 @@ export const products: Product[] = [
     occasion: ['Office', 'Formal Dinner'],
     productCode: 'AJ-E001',
     images: [
-      '/images/source/photo-1611085583191-a3b181a88401.jpg',
-      '/images/source/photo-1602173574767-37ac01994b2a.jpg'
+      '/images/source/pexels-pearl-drop-earrings-23495777.jpg',
+      '/images/source/photo-1535556116002-6281ff3e9f36.jpg'
     ],
     featured: true,
     newArrival: false,
@@ -139,8 +139,8 @@ export const products: Product[] = [
     occasion: ['Party', 'Wedding Guest'],
     productCode: 'AJ-E002',
     images: [
-      '/images/source/photo-1611652022419-a9419f74343d.jpg',
-      '/images/source/photo-1583292650898-7d22cd27ca6f.jpg'
+      '/images/source/pexels-diamond-earrings-2849743.jpg',
+      '/images/source/photo-1617038260897-41a1f14a8ca0.jpg'
     ],
     featured: false,
     newArrival: true,
@@ -163,8 +163,8 @@ export const products: Product[] = [
     occasion: ['Everyday', 'Casual'],
     productCode: 'AJ-E003',
     images: [
-      '/images/source/photo-1583292650898-7d22cd27ca6f.jpg',
-      '/images/source/photo-1602173574767-37ac01994b2a.jpg'
+      '/images/source/pexels-stud-earrings-5370641.jpg',
+      '/images/source/photo-1617038260897-41a1f14a8ca0.jpg'
     ],
     featured: false,
     newArrival: false,
@@ -187,8 +187,8 @@ export const products: Product[] = [
     occasion: ['Brunch', 'Evening Out'],
     productCode: 'AJ-E004',
     images: [
-      '/images/source/photo-1602173574767-37ac01994b2a.jpg',
-      '/images/source/photo-1611085583191-a3b181a88401.jpg'
+      '/images/source/pexels-hoop-earrings-18075558.jpg',
+      '/images/source/photo-1617038260897-41a1f14a8ca0.jpg'
     ],
     featured: true,
     newArrival: false,
@@ -214,7 +214,7 @@ export const products: Product[] = [
     productCode: 'AJ-R001',
     images: [
       '/images/source/photo-1611591437281-460bfbe1220a.jpg',
-      '/images/source/photo-1588444837495-c6cfeb53f32d.jpg'
+      '/images/source/photo-1543294001-f7cd5d7fb516.jpg'
     ],
     featured: true,
     newArrival: true,
@@ -261,8 +261,8 @@ export const products: Product[] = [
     occasion: ['Everyday', 'Work'],
     productCode: 'AJ-R003',
     images: [
-      '/images/source/photo-1588444837495-c6cfeb53f32d.jpg',
-      '/images/source/photo-1543294001-f7cd5d7fb516.jpg'
+      '/images/source/photo-1543294001-f7cd5d7fb516.jpg',
+      '/images/source/photo-1611591437281-460bfbe1220a.jpg'
     ],
     featured: false,
     newArrival: false,
@@ -287,8 +287,8 @@ export const products: Product[] = [
     occasion: ['Wedding', 'Festive'],
     productCode: 'AJ-B001',
     images: [
-      '/images/source/photo-1605100804763-247f67b3557e.jpg',
-      '/images/source/photo-1535556116002-6281ff3e9f36.jpg'
+      '/images/source/pexels-gold-bangles-12579906.jpg',
+      '/images/source/photo-1573408301185-9146fe634ad0.jpg'
     ],
     featured: true,
     newArrival: false,
@@ -311,7 +311,7 @@ export const products: Product[] = [
     occasion: ['Party', 'Cultural Event'],
     productCode: 'AJ-B002',
     images: [
-      '/images/source/photo-1535556116002-6281ff3e9f36.jpg',
+      '/images/source/photo-1573408301185-9146fe634ad0.jpg',
       '/images/source/photo-1605100804763-247f67b3557e.jpg'
     ],
     featured: false,
@@ -335,8 +335,8 @@ export const products: Product[] = [
     occasion: ['Everyday', 'Casual Outing'],
     productCode: 'AJ-B003',
     images: [
-      '/images/source/photo-1605100804763-247f67b3557e.jpg',
-      '/images/source/photo-1535556116002-6281ff3e9f36.jpg'
+      '/images/source/pexels-textured-bangles-37485309.jpg',
+      '/images/source/photo-1573408301185-9146fe634ad0.jpg'
     ],
     featured: false,
     newArrival: false,
@@ -362,7 +362,7 @@ export const products: Product[] = [
     productCode: 'AJ-BR001',
     images: [
       '/images/source/photo-1573408301185-9146fe634ad0.jpg',
-      '/images/source/photo-1622398925373-3f91b1e275f5.jpg'
+      '/images/source/photo-1602173574767-37ac01994b2a.jpg'
     ],
     featured: true,
     newArrival: false,
@@ -385,7 +385,7 @@ export const products: Product[] = [
     occasion: ['Formal', 'Dinner Date'],
     productCode: 'AJ-BR002',
     images: [
-      '/images/source/photo-1622398925373-3f91b1e275f5.jpg',
+      '/images/source/photo-1602173574767-37ac01994b2a.jpg',
       '/images/source/photo-1573408301185-9146fe634ad0.jpg'
     ],
     featured: false,
@@ -411,8 +411,8 @@ export const products: Product[] = [
     occasion: ['Evening Event', 'Anniversary'],
     productCode: 'AJ-P001',
     images: [
-      '/images/source/photo-1617038260897-41a1f14a8ca0.jpg',
-      '/images/source/photo-1611652022419-a9419f74343d.jpg'
+      '/images/source/photo-1610694955371-d4a3e0ce4b52.jpg',
+      '/images/source/photo-1630019852942-f89202989a59.jpg'
     ],
     featured: true,
     newArrival: false,
@@ -435,8 +435,8 @@ export const products: Product[] = [
     occasion: ['Everyday', 'Gift'],
     productCode: 'AJ-P002',
     images: [
-      '/images/source/photo-1535632066927-ab7c9ab60908.jpg',
-      '/images/source/photo-1599643478518-a784e5dc4c8f.jpg'
+      '/images/source/photo-1630019852942-f89202989a59.jpg',
+      '/images/source/photo-1610694955371-d4a3e0ce4b52.jpg'
     ],
     featured: false,
     newArrival: false,
@@ -461,8 +461,8 @@ export const products: Product[] = [
     occasion: ['Wedding', 'Reception'],
     productCode: 'AJ-BS001',
     images: [
-      '/images/source/photo-1596944924616-7b38e7cfac36.jpg',
-      '/images/source/photo-1609587312208-cea54be969e7.jpg'
+      '/images/source/pexels-bridal-set-28347075.jpg',
+      '/images/source/photo-1519741497674-611481863552.jpg'
     ],
     featured: true,
     newArrival: false,
@@ -485,7 +485,7 @@ export const products: Product[] = [
     occasion: ['Wedding'],
     productCode: 'AJ-BS002',
     images: [
-      '/images/source/photo-1609587312208-cea54be969e7.jpg',
+      '/images/source/pexels-bridal-set-28347079.jpg',
       '/images/source/photo-1596944924616-7b38e7cfac36.jpg'
     ],
     featured: true,
@@ -509,8 +509,8 @@ export const products: Product[] = [
     occasion: ['Engagement', 'Walima'],
     productCode: 'AJ-BS003',
     images: [
-      '/images/source/photo-1574634534894-89d7576c8259.jpg',
-      '/images/source/photo-1609587312208-cea54be969e7.jpg'
+      '/images/source/pexels-pearl-bridal-set-6716445.jpg',
+      '/images/source/photo-1519741497674-611481863552.jpg'
     ],
     featured: false,
     newArrival: true,
@@ -535,7 +535,7 @@ export const products: Product[] = [
     occasion: ['Party', 'Festive'],
     productCode: 'AJ-JS001',
     images: [
-      '/images/source/photo-1610694955371-d4a3e0ce4b52.jpg',
+      '/images/source/pexels-rose-gold-set-5116272.jpg',
       '/images/source/photo-1506630448388-4e683c67ddb0.jpg'
     ],
     featured: true,
@@ -559,8 +559,8 @@ export const products: Product[] = [
     occasion: ['Dinner Party', 'Cultural Event'],
     productCode: 'AJ-JS002',
     images: [
-      '/images/source/photo-1506630448388-4e683c67ddb0.jpg',
-      '/images/source/photo-1610694955371-d4a3e0ce4b52.jpg'
+      '/images/source/pexels-gold-floral-set-29385412.jpg',
+      '/images/source/photo-1611085583191-a3b181a88401.jpg'
     ],
     featured: false,
     newArrival: true,
@@ -583,8 +583,8 @@ export const products: Product[] = [
     occasion: ['Formal Event', 'Gala'],
     productCode: 'AJ-JS003',
     images: [
-      '/images/source/photo-1611652022419-a9419f74343d.jpg',
-      '/images/source/photo-1506630448388-4e683c67ddb0.jpg'
+      '/images/source/pexels-sapphire-set-32988651.jpg',
+      '/images/source/photo-1610694955371-d4a3e0ce4b52.jpg'
     ],
     featured: false,
     newArrival: false,

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from "framer-motion";
-import { Quote, Star } from "lucide-react";
+import { Quote } from "lucide-react";
 import { Testimonial } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -23,15 +23,6 @@ export function TestimonialCard({ testimonial, index = 0, className }: Testimoni
         className
       )}
     >
-      <div className="flex text-champagne mb-4 gap-1">
-        {[...Array(testimonial.rating)].map((_, i) => (
-          <Star key={i} size={18} fill="currentColor" className="text-champagne-dark" />
-        ))}
-        {[...Array(5 - testimonial.rating)].map((_, i) => (
-          <Star key={i} size={18} className="text-gray-300" />
-        ))}
-      </div>
-
       <Quote size={32} className="text-champagne-light mb-4 opacity-50" />
 
       <p className="font-sans text-charcoal flex-grow italic mb-6 leading-relaxed text-sm md:text-base">

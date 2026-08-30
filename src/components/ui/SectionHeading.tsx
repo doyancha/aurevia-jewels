@@ -21,9 +21,9 @@ export function SectionHeading({
 
   return (
     <div className={cn("flex flex-col", resolvedAlign === 'center' ? "items-center text-center" : "items-start text-left", className)}>
-      <HeadingTag className="font-serif text-3xl md:text-4xl text-charcoal">{title}</HeadingTag>
+      <HeadingTag className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] text-charcoal">{title}</HeadingTag>
       <div className="h-0.5 w-16 bg-champagne my-4" aria-hidden="true" />
-      {subtitle && <p className="font-sans text-charcoal-light max-w-2xl">{subtitle}</p>}
+      {subtitle && <p className="font-sans text-sm md:text-base lg:text-[1.05rem] text-charcoal-light max-w-2xl">{subtitle}</p>}
     </div>
   );
 }
