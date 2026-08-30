@@ -12,7 +12,7 @@ export function BridalBanner() {
           {/* Image Side */}
           <div className="w-full lg:w-1/2 relative min-h-[400px] lg:min-h-[500px]">
             <Image
-              src="/images/source/photo-1596944924616-7b38e7cfac36.jpg"
+              src="/images/source/pexels-bridal-set-28347078.jpg"
               alt="Elegant bridal jewelry by Aurevia Jewels"
               fill
               className="object-cover object-center"

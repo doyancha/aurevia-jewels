@@ -24,7 +24,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="lg:pl-10 xl:pl-12">
             <h3 className="font-serif text-lg text-champagne mb-6 uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-4">
               {siteConfig.footerNavigation?.quickLinks ? (
@@ -48,7 +48,7 @@ export function Footer() {
           </div>
 
           {/* Collections */}
-          <div>
+          <div className="lg:pl-6 xl:pl-8">
             <h3 className="font-serif text-lg text-champagne mb-6 uppercase tracking-wider">Collections</h3>
             <ul className="space-y-4">
               {siteConfig.footerNavigation?.collections ? (

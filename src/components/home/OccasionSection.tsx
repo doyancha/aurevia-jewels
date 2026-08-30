@@ -9,7 +9,7 @@ const occasions = [
   {
     id: 'wedding',
     title: 'Wedding',
-    image: '/images/source/photo-1519741497674-611481863552.jpg',
+    image: '/images/source/pexels-bridal-set-28347078.jpg',
     href: '/collections/bridal'
   },
   {

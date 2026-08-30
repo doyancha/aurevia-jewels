@@ -33,7 +33,7 @@ export const collections: Collection[] = [
     name: 'Bracelets',
     slug: 'bracelets',
     description: 'Charming bracelets perfect for stacking or wearing elegantly on their own.',
-    image: '/images/source/photo-1602173574767-37ac01994b2a.jpg',
+    image: '/images/source/photo-1622398925373-3f91b1e275f5.jpg',
     category: 'Bracelets',
   },
   {
@@ -47,7 +47,7 @@ export const collections: Collection[] = [
     name: 'Bridal Sets',
     slug: 'bridal',
     description: 'Opulent bridal jewelry sets to make you shine on your most special day.',
-    image: '/images/source/photo-1596944924616-7b38e7cfac36.jpg',
+    image: '/images/source/pexels-bridal-set-28347078.jpg',
     category: 'Bridal Sets',
   },
   {

@@ -29,7 +29,7 @@ All storefront photography below is currently self-hosted for runtime use. The o
 | `public/images/source/photo-1588444837495-c6cfeb53f32d.jpg` | Rings | Unsplash | `https://images.unsplash.com/photo-1588444837495-c6cfeb53f32d` | B | Real jewelry photography; source verification required. |
 | `public/images/source/photo-1596944924616-7b38e7cfac36.jpg` | Hero, bridal banner, bridal sets | Unsplash | `https://images.unsplash.com/photo-1596944924616-7b38e7cfac36` | B | Real jewelry photography; source verification required. |
 | `public/images/source/photo-1599643478518-a784e5dc4c8f.jpg` | Hero, necklaces, occasion/editorial reuse | Unsplash | `https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f` | B | Real jewelry photography; source verification required. |
-| `public/images/source/photo-1602173574767-37ac01994b2a.jpg` | Earrings, occasion imagery | Unsplash | `https://images.unsplash.com/photo-1602173574767-37ac01994b2a` | B | Real jewelry photography; source verification required. |
+| `public/images/source/photo-1602173574767-37ac01994b2a.jpg` | Retired bracelet/occasion asset | Unsplash | `https://images.unsplash.com/photo-1602173574767-37ac01994b2a` | B | Retired from runtime storefront use in v1.1.1 after replacement with a lower-risk bracelet image. |
 | `public/images/source/photo-1605100804763-247f67b3557e.jpg` | Bangles | Unsplash | `https://images.unsplash.com/photo-1605100804763-247f67b3557e` | B | Real jewelry photography; source verification required. |
 | `public/images/source/photo-1609587312208-cea54be969e7.jpg` | Bridal sets, jewelry sets | Unsplash | `https://images.unsplash.com/photo-1609587312208-cea54be969e7` | B | Real jewelry photography; source verification required. |
 | `public/images/source/photo-1610694955371-d4a3e0ce4b52.jpg` | Jewelry sets, occasion/Eid imagery | Unsplash | `https://images.unsplash.com/photo-1610694955371-d4a3e0ce4b52` | B | Real jewelry photography; source verification required. |
@@ -51,6 +51,8 @@ All storefront photography below is currently self-hosted for runtime use. The o
 - Local self-hosting is now the runtime default for storefront photography.
 - Several v1.1 remediation images were added from Pexels and self-hosted locally to improve category-to-image matching.
 - Each retained image still requires business/legal source verification before any real commercial launch.
+- A high-risk bracelet asset with a visible Apple logo was retired from runtime use in v1.1.1 and replaced with an object-only bracelet photograph.
+- Bridal/banner/editorial imagery was tightened with lower-risk bridal-set assets where a cleaner object-only image was already available.
 
 ## v1.1 additions
 
@@ -67,6 +69,16 @@ All storefront photography below is currently self-hosted for runtime use. The o
 | `public/images/source/pexels-bridal-set-28347075.jpg` | Noor Bridal Jewelry Set | Pexels | `https://images.pexels.com/photos/28347075/pexels-photo-28347075.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for bridal-set presentation. |
 | `public/images/source/pexels-bridal-set-28347079.jpg` | Maharani Statement Set | Pexels | `https://images.pexels.com/photos/28347079/pexels-photo-28347079.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for statement bridal-set presentation. |
 | `public/images/source/pexels-pearl-bridal-set-6716445.jpg` | Ivory Pearl Bridal Set | Pexels | `https://images.pexels.com/photos/6716445/pexels-photo-6716445.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for pearl bridal-set presentation. |
+| `public/images/source/pexels-pearl-bridal-set-30069309.jpg` | Editorial bridal / wedding / occasion reuse | Pexels | `https://images.pexels.com/photos/30069309/pexels-photo-30069309.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1.1 as a lower-risk bridal-set alternative for wedding/editorial surfaces. |
 | `public/images/source/pexels-rose-gold-set-5116272.jpg` | Rosewood Celebration Set | Pexels | `https://images.pexels.com/photos/5116272/pexels-photo-5116272.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for a rose-gold jewelry-set presentation. |
 | `public/images/source/pexels-gold-floral-set-29385412.jpg` | Golden Petal Jewelry Set | Pexels | `https://images.pexels.com/photos/29385412/pexels-photo-29385412.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for floral jewelry-set presentation. |
 | `public/images/source/pexels-sapphire-set-32988651.jpg` | Sapphire Elegance Set | Pexels | `https://images.pexels.com/photos/32988651/pexels-photo-32988651.jpeg?cs=srgb&fm=jpg` | B | Self-hosted in v1.1 for sapphire-set presentation. |
+| `public/images/source/photo-1622398925373-3f91b1e275f5.jpg` | Bracelets collection, Pearl Grace Bracelet, Luna Charm Bracelet | Unsplash | `https://images.unsplash.com/photo-1622398925373-3f91b1e275f5` | B | Self-hosted in v1.1.1 as a lower-risk object-only bracelet image. |
+
+## v1.1.1 hardening note
+
+The following previously referenced runtime asset is no longer used by the storefront UI:
+
+- `public/images/source/photo-1602173574767-37ac01994b2a.jpg`
+
+It remains listed here as a retired asset for provenance history, but it is no longer part of the runtime storefront image set.

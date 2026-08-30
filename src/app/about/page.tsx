@@ -36,7 +36,7 @@ export default function AboutPage() {
             {/* Placeholder image for real jewelry */}
             <div className="absolute inset-0 bg-gray-200">
               <Image
-                src="/images/source/photo-1519741497674-611481863552.jpg"
+                src="/images/source/photo-1599643478518-a784e5dc4c8f.jpg"
                 alt="Elegant jewelry inspiration by Aurevia Jewels"
                 fill
                 className="object-cover"

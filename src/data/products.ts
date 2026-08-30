@@ -362,7 +362,7 @@ export const products: Product[] = [
     productCode: 'AJ-BR001',
     images: [
       '/images/source/photo-1573408301185-9146fe634ad0.jpg',
-      '/images/source/photo-1602173574767-37ac01994b2a.jpg'
+      '/images/source/photo-1622398925373-3f91b1e275f5.jpg'
     ],
     featured: true,
     newArrival: false,
@@ -385,7 +385,7 @@ export const products: Product[] = [
     occasion: ['Formal', 'Dinner Date'],
     productCode: 'AJ-BR002',
     images: [
-      '/images/source/photo-1602173574767-37ac01994b2a.jpg',
+      '/images/source/photo-1622398925373-3f91b1e275f5.jpg',
       '/images/source/photo-1573408301185-9146fe634ad0.jpg'
     ],
     featured: false,
