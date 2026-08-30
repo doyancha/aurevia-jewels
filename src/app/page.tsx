@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Hero } from '@/components/home/Hero';
 import { CollectionCategories } from '@/components/home/CollectionCategories';
 import { FeaturedProducts } from '@/components/home/FeaturedProducts';
@@ -8,6 +9,12 @@ import { OccasionSection } from '@/components/home/OccasionSection';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { Testimonials } from '@/components/home/Testimonials';
 import { siteConfig } from '@/config/site';
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: siteConfig.url,
+  },
+};
 
 export default function Home() {
   const jsonLd = {
