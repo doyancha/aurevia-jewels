@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aurevia Jewels
 
-## Getting Started
+Premium jewelry and ornaments storefront built with Next.js 16, TypeScript, Tailwind CSS, Framer Motion, and Lucide React.
 
-First, run the development server:
+Current mode: **demo storefront**
+
+## Highlights
+
+- 24 curated products across 8 collections
+- SEO-friendly product and collection routes
+- Demo-safe WhatsApp ordering flow
+- Locally self-hosted storefront imagery
+- Delivery, returns, FAQ, privacy, and terms pages
+- Sitemap, robots, and structured data included
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` after the dev server starts.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Validation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+npm start
+```
 
-## Learn More
+## Environment
 
-To learn more about Next.js, take a look at the following resources:
+Copy `.env.example` to `.env.local` for local overrides if needed. The main public variable is:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `NEXT_PUBLIC_SITE_URL`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Set `NEXT_PUBLIC_SITE_URL` in Vercel after the first deployment so canonical URLs, sitemap entries, Open Graph tags, and structured data resolve to the deployment URL.
 
-## Deploy on Vercel
+## Deployment note
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This repository is prepared for a public demo deployment, not a commercial launch. Demo contact details and image provenance still require business-owner verification before real commercial use.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Asset provenance
+
+See [`docs/asset-provenance.md`](docs/asset-provenance.md) for the current storefront image inventory and source-verification status.
