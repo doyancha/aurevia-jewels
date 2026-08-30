@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { siteConfig } from '@/config/site';
 
@@ -7,12 +8,20 @@ export function Footer() {
   return (
     <footer className="bg-charcoal text-ivory pt-16 pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[minmax(0,0.92fr)_repeat(3,minmax(0,1fr))] gap-12 lg:gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[minmax(0,1.92fr)_minmax(0,0.5fr)_minmax(0,0.5fr)_minmax(0,1fr)] gap-12 lg:gap-8 mb-16">
           {/* Brand Column */}
           <div className="space-y-6">
             <Link href="/" className="inline-block">
-              <span className="font-serif text-3xl tracking-wide text-ivory">
-                {siteConfig.name}
+              <span className="sr-only">{siteConfig.name}</span>
+              <span className="relative block h-[88px] w-[132px] sm:h-[96px] sm:w-[144px] lg:h-[104px] lg:w-[156px]">
+                <Image
+                  src="/images/brand/aurevia-jewels-logo-gold.png"
+                  alt={siteConfig.name}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 156px, (min-width: 640px) 144px, 132px"
+                  className="object-contain object-left"
+                />
               </span>
             </Link>
             <p className="text-ivory/80 text-sm max-w-sm leading-relaxed">
@@ -24,7 +33,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="lg:pl-10 xl:pl-12">
+          <div>
             <h3 className="font-serif text-lg text-champagne mb-6 uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-4">
               {siteConfig.footerNavigation?.quickLinks ? (
@@ -48,7 +57,7 @@ export function Footer() {
           </div>
 
           {/* Collections */}
-          <div className="lg:pl-6 xl:pl-8">
+          <div>
             <h3 className="font-serif text-lg text-champagne mb-6 uppercase tracking-wider">Collections</h3>
             <ul className="space-y-4">
               {siteConfig.footerNavigation?.collections ? (

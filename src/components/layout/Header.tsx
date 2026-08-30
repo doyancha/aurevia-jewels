@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Menu } from 'lucide-react';
@@ -44,9 +45,20 @@ export function Header() {
 
             {/* Logo (Center on mobile, Left on desktop) */}
             <div className="flex-1 md:flex-none text-center md:text-left">
-              <Link href="/" className="inline-block">
-                <span className="font-serif text-2xl md:text-3xl lg:text-[2rem] tracking-wide text-charcoal font-semibold">
-                  {siteConfig.name}
+              <Link href="/" className="inline-flex items-center justify-center md:justify-start gap-2 sm:gap-2.5 md:gap-3" aria-label={siteConfig.name}>
+                <span className="relative block h-[32px] w-[32px] shrink-0 sm:h-[36px] sm:w-[36px] md:h-[38px] md:w-[38px] lg:h-[42px] lg:w-[42px]">
+                  <Image
+                    src="/images/brand/aurevia-jewels-logo-gold.png"
+                    alt=""
+                    aria-hidden="true"
+                    fill
+                    priority
+                    sizes="42px"
+                    className="object-cover object-[center_12%]"
+                  />
+                </span>
+                <span className="font-serif text-[1rem] leading-none tracking-[0.12em] text-charcoal font-semibold whitespace-nowrap sm:text-[1.04rem] md:text-[1.12rem] lg:text-[1.2rem]">
+                  Aurevia Jewels
                 </span>
               </Link>
             </div>
