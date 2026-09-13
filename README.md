@@ -44,6 +44,8 @@ npm run verify:catalog-contract
 
 The machine-readable contract is [`contracts/catalog-api-v1.json`](contracts/catalog-api-v1.json). Backend tests use Django's isolated test database, mock Cloudinary, and require no external network. Public API breaking changes require coordinated v1-compatible updates or a future `/api/v2/`; Phase 12 remains full-stack integration QA.
 
+For the complete local integration path, follow [`docs/local-fullstack-qa.md`](docs/local-fullstack-qa.md) and run `npm run verify:local-fullstack` against the dedicated Django and production-mode Next servers.
+
 ## Environment
 
 Copy `.env.example` to `.env.local` for local overrides if needed. The main public variable is:
