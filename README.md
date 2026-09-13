@@ -35,8 +35,11 @@ npm start
 Copy `.env.example` to `.env.local` for local overrides if needed. The main public variable is:
 
 - `NEXT_PUBLIC_SITE_URL`
+- `AUREVIA_CATALOG_API_BASE_URL` — server-only Django REST catalog base URL. For local work use `http://127.0.0.1:8000/api/v1`; Django must be running for API-backed builds and runtime. It has no `NEXT_PUBLIC_` prefix, and this server-to-server architecture requires no CORS.
 
 Set `NEXT_PUBLIC_SITE_URL` in Vercel after the first deployment so canonical URLs, sitemap entries, Open Graph tags, and structured data resolve to the deployment URL.
+
+The Django API is now the storefront catalog source of truth. The legacy TypeScript catalog remains unchanged for migration audit/history and is not used by runtime storefront paths.
 
 ## Deployment note
 

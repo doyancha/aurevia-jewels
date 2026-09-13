@@ -1,11 +1,12 @@
-import { getFeaturedProducts } from '@/data/products';
+import { Product } from '@/types';
+import { getFeaturedProducts } from '@/lib/catalog-helpers';
 import { ProductGrid } from '@/components/ui/ProductGrid';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
 import Link from 'next/link';
 
-export function FeaturedProducts() {
-  const products = getFeaturedProducts();
+export function FeaturedProducts({ catalog }: { catalog: Product[] }) {
+  const products = getFeaturedProducts(catalog);
   const displayProducts = products.slice(0, 8); // Max 8 featured products
 
   return (

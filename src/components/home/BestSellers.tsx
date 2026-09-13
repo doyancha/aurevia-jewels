@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { getBestSellers } from '@/data/products';
+import { Product } from '@/types';
+import { getBestSellers } from '@/lib/catalog-helpers';
 import { ProductGrid } from '@/components/ui/ProductGrid';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
 
-export function BestSellers() {
-  const products = getBestSellers().slice(0, 4);
+export function BestSellers({ catalog }: { catalog: Product[] }) {
+  const products = getBestSellers(catalog).slice(0, 4);
 
   return (
     <section className="py-16 md:py-24 bg-cream/30">

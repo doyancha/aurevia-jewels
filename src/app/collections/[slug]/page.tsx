@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { collections, getCollectionBySlug } from '@/data/collections';
-import { getProductsByCategory } from '@/data/products';
+import { getCollectionBySlug, getCollections, getProducts } from '@/lib/catalog-api';
+import { getProductsByCollection } from '@/lib/catalog-helpers';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductGrid } from '@/components/ui/ProductGrid';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
@@ -14,7 +14,8 @@ interface CollectionPageProps {
   }>;
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const collections = await getCollections();
   return collections.map((collection) => ({
     slug: collection.slug,
   }));
@@ -22,7 +23,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: CollectionPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const collection = getCollectionBySlug(slug);
+  const collection = await getCollectionBySlug(slug);
 
   if (!collection) {
     return {
@@ -41,13 +42,13 @@ export async function generateMetadata({ params }: CollectionPageProps): Promise
 
 export default async function CollectionPage({ params }: CollectionPageProps) {
   const { slug } = await params;
-  const collection = getCollectionBySlug(slug);
+  const collection = await getCollectionBySlug(slug);
 
   if (!collection) {
     notFound();
   }
 
-  const products = getProductsByCategory(collection.category);
+  const products = getProductsByCollection(await getProducts(), collection.slug);
 
   return (
     <main className="min-h-screen py-10 bg-white">

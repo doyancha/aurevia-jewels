@@ -7,6 +7,7 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { WhatsAppDemoProvider } from "@/components/ui/WhatsAppDemoDialog";
 import { siteConfig } from "@/config/site";
+import { getProducts } from '@/lib/catalog-api';
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -83,17 +84,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const products = await getProducts();
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`} data-scroll-behavior="smooth">
       <body className="min-h-screen flex flex-col bg-ivory text-charcoal antialiased">
         <WhatsAppDemoProvider>
           <AnnouncementBar />
-          <Header />
+          <Header products={products} />
           <main className="flex-1">{children}</main>
           <Footer />
           <FloatingWhatsApp />

@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next'
-import { products } from '@/data/products'
-import { collections } from '@/data/collections'
+import { getCollections, getProducts } from '@/lib/catalog-api'
 import { siteConfig } from '@/config/site'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [products, collections] = await Promise.all([getProducts(), getCollections()]);
   const baseUrl = siteConfig.url.replace(/\/$/, '')
 
   const productUrls = products.map(p => ({

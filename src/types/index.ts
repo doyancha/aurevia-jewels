@@ -23,6 +23,10 @@ export interface Product {
   bestSeller: boolean;
   availability: 'Ask About Availability' | 'Made to Order';
   collection?: string;
+  collections?: { name: string; slug: string }[];
+  availabilityStatus?: string;
+  seoTitle?: string;
+  seoDescription?: string;
   badges?: string[];
 }
 
@@ -33,7 +37,7 @@ export interface Collection {
   slug: string;
   description: string;
   image: string;
-  category: ProductCategory;
+  category?: ProductCategory;
   title?: string;
 }
 

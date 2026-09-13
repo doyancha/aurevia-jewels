@@ -1,9 +1,9 @@
-import { collections } from '@/data/collections';
+import { Collection } from '@/types';
 import { CollectionCard } from '@/components/ui/CollectionCard';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
 
-export function CollectionCategories() {
+export function CollectionCategories({ collections }: { collections: Collection[] }) {
   return (
     <section className="py-16 md:py-24 bg-cream/30">
       <div className="container mx-auto px-4 md:px-6">

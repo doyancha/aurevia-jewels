@@ -1,15 +1,16 @@
 'use client';
 
 import { useRef } from 'react';
-import { getNewArrivals } from '@/data/products';
+import { Product } from '@/types';
+import { getNewArrivals } from '@/lib/catalog-helpers';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export function NewArrivals() {
+export function NewArrivals({ catalog }: { catalog: Product[] }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const products = getNewArrivals();
+  const products = getNewArrivals(catalog);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {

@@ -9,6 +9,7 @@ import { OccasionSection } from '@/components/home/OccasionSection';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { Testimonials } from '@/components/home/Testimonials';
 import { siteConfig } from '@/config/site';
+import { getCollections, getProducts } from '@/lib/catalog-api';
 
 export const metadata: Metadata = {
   alternates: {
@@ -16,7 +17,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const [products, collections] = await Promise.all([getProducts(), getCollections()]);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -34,11 +36,11 @@ export default function Home() {
       />
 
       <Hero />
-      <CollectionCategories />
-      <FeaturedProducts />
+      <CollectionCategories collections={collections} />
+      <FeaturedProducts catalog={products} />
       <BridalBanner />
-      <NewArrivals />
-      <BestSellers />
+      <NewArrivals catalog={products} />
+      <BestSellers catalog={products} />
       <OccasionSection />
       <WhyChooseUs />
       <Testimonials />

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { products, getProductBySlug, getRelatedProducts } from '@/data/products';
+import { getProductBySlug, getProducts } from '@/lib/catalog-api';
+import { getRelatedProducts } from '@/lib/catalog-helpers';
 import { ProductDetails } from '@/components/product/ProductDetails';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { SectionHeading } from '@/components/ui/SectionHeading';
@@ -13,7 +14,8 @@ interface ProductPageProps {
   }>;
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const products = await getProducts();
   return products.map((product) => ({
     slug: product.slug,
   }));
@@ -21,7 +23,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -30,14 +32,14 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 
   return {
-    title: `${product.name} | Aurevia Jewels`,
-    description: product.shortDescription,
+    title: product.seoTitle || `${product.name} | Aurevia Jewels`,
+    description: product.seoDescription || product.shortDescription,
     alternates: {
       canonical: `/products/${product.slug}`,
     },
     openGraph: {
       title: product.name,
-      description: product.shortDescription,
+      description: product.seoDescription || product.shortDescription,
       images: [
         {
           url: product.images[0],
@@ -52,13 +54,13 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = getRelatedProducts(product, 4);
+  const relatedProducts = getRelatedProducts(await getProducts(), product, 4);
   const canonicalImages = product.images.map((image) => new URL(image, siteConfig.url).toString());
   const canonicalProductUrl = `${siteConfig.url}/products/${product.slug}`;
 
@@ -73,11 +75,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
     offers: {
       '@type': 'Offer',
       url: canonicalProductUrl,
-      priceCurrency: 'BDT',
+      priceCurrency: product.currency,
       price: product.price,
-      ...(product.availability === 'Made to Order'
-        ? { availability: 'https://schema.org/PreOrder' }
-        : {}),
+      availability: product.availability === 'Made to Order' ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock',
     },
   };
 

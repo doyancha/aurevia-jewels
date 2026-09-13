@@ -6,28 +6,19 @@ import { ProductGrid } from '@/components/ui/ProductGrid';
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
-import { searchProducts } from '@/data/products';
+import { searchProducts } from '@/lib/catalog-helpers';
 
 interface ShopContentProps {
   initialProducts: Product[];
+  categories: ProductCategory[];
 }
 
-export function ShopContent({ initialProducts }: ShopContentProps) {
+export function ShopContent({ initialProducts, categories: apiCategories }: ShopContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'All'>('All');
   const [selectedSort, setSelectedSort] = useState<string>('featured');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories: (ProductCategory | 'All')[] = [
-    'All',
-    'Necklaces',
-    'Earrings',
-    'Rings',
-    'Bangles',
-    'Bracelets',
-    'Pendants',
-    'Bridal Sets',
-    'Jewelry Sets',
-  ];
+  const categories: (ProductCategory | 'All')[] = ['All', ...apiCategories];
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = initialProducts;
@@ -39,7 +30,7 @@ export function ShopContent({ initialProducts }: ShopContentProps) {
 
     // Filter by search query
     if (searchQuery.trim()) {
-      result = searchProducts(searchQuery).filter((product) =>
+      result = searchProducts(initialProducts, searchQuery).filter((product) =>
         selectedCategory === 'All' ? true : product.category === selectedCategory
       );
       // Category was already applied above; the search results should preserve the current category filter.

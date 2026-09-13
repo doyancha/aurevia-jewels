@@ -5,21 +5,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getBestSellers, searchProducts } from '@/data/products';
+import { getBestSellers, searchProducts } from '@/lib/catalog-helpers';
+import type { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
 
 interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
+  products: Product[];
 }
 
-export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
+export function SearchOverlay({ isOpen, onClose, products }: SearchOverlayProps) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
   const popularSearches = ['Necklaces', 'Rings', 'Earrings', 'Bridal Sets', 'Bangles', 'Jewelry Sets'];
-  const popularProducts = getBestSellers().slice(0, 4);
+  const popularProducts = getBestSellers(products).slice(0, 4);
 
   const closeOverlay = useCallback(() => {
     setQuery('');
@@ -96,7 +98,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     [closeOverlay, getFocusableElements]
   );
 
-  const results = query.trim().length > 1 ? searchProducts(query) : [];
+  const results = query.trim().length > 1 ? searchProducts(products, query) : [];
   const trimmedQuery = query.trim();
   const showDiscoveryState = trimmedQuery.length < 2;
 

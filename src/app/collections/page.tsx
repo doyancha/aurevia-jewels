@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { collections } from '@/data/collections';
+import { getCollections } from '@/lib/catalog-api';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { CollectionCard } from '@/components/ui/CollectionCard';
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   description: 'Explore our curated jewelry collections. Each collection is thoughtfully designed to tell a unique story and complement your personal style.',
 };
 
-export default function CollectionsPage() {
+export default async function CollectionsPage() {
+  const collections = await getCollections();
   return (
     <main className="min-h-screen py-10 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
