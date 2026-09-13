@@ -1,59 +1,61 @@
-# Aurevia Jewels production environment
+# Aurevia Jewels v1.2 production environment
 
-This is a Phase 13 preparation manifest. Values below are placeholders only;
-no provider settings are changed by this phase.
+Status: production verified and demo-safe. This document records the current
+topology and required environment variable names; it contains no secret values.
 
-The frontend target is the existing Vercel project `aurevia-jewels`
-(`prj_tprzlBVqlGKwp5x1FEJS4eXwsaz0`), currently aliased as
-`aurevia-jewels-gamma.vercel.app`. Phase 14 must reuse it; no second project,
-alias, custom domain, or DNS record is prepared here.
+## Topology
 
-## Backend — Railway Django service
+- Frontend: existing Vercel project `aurevia-jewels`, project ID
+  `prj_tprzlBVqlGKwp5x1FEJS4eXwsaz0`
+- Frontend URL: <https://aurevia-jewels-gamma.vercel.app>
+- Backend: Railway service `backend`
+- Backend URL: <https://backend-production-b210.up.railway.app>
+- Database: Railway-managed private PostgreSQL, reachable by the backend
+  service through its private connection reference
+- Media: Cloudinary; public HTTPS delivery is used by catalog images
 
-| Variable | Owner | Classification | Required | Example / source | Phase | Purpose |
-|---|---|---|---|---|---|---|
-| `DJANGO_SETTINGS_MODULE` | Railway | non-secret | yes | `config.settings.production` | runtime | Selects fail-closed production settings |
-| `DJANGO_SECRET_KEY` | Railway | secret | yes | `<50+-character-random-secret>` | runtime | Django signing and CSRF secret |
-| `DJANGO_ALLOWED_HOSTS` | Railway | non-secret | yes | `<railway-host>,healthcheck.railway.app` | runtime | Explicit backend and Railway healthcheck hosts |
-| `DJANGO_CSRF_TRUSTED_ORIGINS` | Railway | non-secret | optional | `https://<railway-host>` | runtime | Explicit unsafe-request origins; same-origin Admin normally needs none |
-| `DJANGO_TRUST_X_FORWARDED_PROTO` | Railway | non-secret | yes | `true` | runtime | Trusts HTTPS set by Railway’s TLS edge only |
-| `DATABASE_URL` | Railway PostgreSQL reference | secret | yes | `postgresql://<user>:<password>@<private-host>:5432/<db>` | runtime | Private PostgreSQL connection; preferred over `POSTGRES_*` |
-| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT` | Railway | mixed (`PASSWORD` secret) | alternative | explicit provider values | runtime | Complete alternative when `DATABASE_URL` is unavailable; no local host allowed |
-| `CLOUDINARY_CLOUD_NAME` | Railway | non-secret | yes for Admin media | `<cloud-name>` | runtime | Existing Cloudinary product media account |
-| `CLOUDINARY_API_KEY` | Railway | secret | yes for Admin media | `<api-key>` | runtime | Server-side Cloudinary SDK |
-| `CLOUDINARY_API_SECRET` | Railway | secret | yes for Admin media | `<api-secret>` | runtime | Server-side Cloudinary SDK; never frontend |
-| `WEB_CONCURRENCY` | Railway | non-secret | optional | `2` | runtime | Gunicorn worker count |
-| `PORT` | Railway-provided | non-secret | provider | `${PORT:-8000}` locally | runtime | Gunicorn listen port; do not hardcode in Railway |
+Request boundary: `Browser → Vercel Next.js → server-side Django API access →
+Railway Django → private PostgreSQL`. The browser does not call Django directly.
+`AUREVIA_CATALOG_API_BASE_URL` is server-only and does not use a
+`NEXT_PUBLIC_` prefix; CORS and a shared API key are not required.
 
-Production settings reject missing/invalid `DJANGO_SECRET_KEY`, empty or
-wildcard hosts, and absent database configuration. They cannot fall back to
-`localhost`, `127.0.0.1`, `aurevia_dev`, or the development password.
+## Required variable names
 
-## Frontend — existing Vercel project
+Railway backend runtime:
 
-| Variable | Owner | Classification | Required | Example / source | Phase | Purpose |
-|---|---|---|---|---|---|---|
-| `AUREVIA_CATALOG_API_BASE_URL` | Vercel | non-secret | yes for production build | `https://<railway-backend-domain>/api/v1` | build/runtime server | Server-side Django catalog origin |
-| `NEXT_PUBLIC_SITE_URL` | Vercel | non-secret | yes for canonical production URLs | `https://aurevia-jewels-gamma.vercel.app` | build/runtime | Metadata, sitemap, and robots canonical origin |
+- `DJANGO_SETTINGS_MODULE` = production settings module
+- `DJANGO_SECRET_KEY` (secret; strong, non-placeholder value)
+- `DJANGO_ALLOWED_HOSTS` (explicit backend hostname plus `healthcheck.railway.app`)
+- `DJANGO_TRUST_X_FORWARDED_PROTO` = `true` only behind Railway’s trusted TLS edge
+- `DATABASE_URL` (secret private PostgreSQL connection reference; preferred)
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY` (secret)
+- `CLOUDINARY_API_SECRET` (secret)
+- Optional: `DJANGO_CSRF_TRUSTED_ORIGINS`, `WEB_CONCURRENCY`; Railway supplies `PORT`
 
-The catalog API variable intentionally has no `NEXT_PUBLIC_` prefix. There is
-no timeout variable: the current Next server client uses a hardcoded 5,000 ms
-timeout and one retry. Do not create a second similarly named variable.
+If `DATABASE_URL` is unavailable, the complete alternative names are
+`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, and
+`POSTGRES_PORT`. Do not use a public database URL, wildcard hosts, localhost,
+or development credentials in production.
 
-Vercel Preview must not be silently pointed at production. Leave the catalog
-variable unset for Preview or configure an explicitly approved read-only policy
-later.
+Vercel Production:
 
-## Operational boundaries
+- `AUREVIA_CATALOG_API_BASE_URL` = Railway `/api/v1` origin
+- `NEXT_PUBLIC_SITE_URL` = canonical Vercel origin
 
-- Railway PostgreSQL remains private; only the Django service uses its private
-  connection reference. `DATABASE_PUBLIC_URL` is not an application variable.
-- Railway health checks send `Host: healthcheck.railway.app`; include that exact
-  hostname in the explicit production allowlist.
-- Railway terminates public TLS. Set forwarded-proto trust to `true` only in
-  the Railway production environment; development remains disabled.
-- Cloudinary public delivery URLs may reach browser HTML. Cloudinary credentials,
-  database credentials, Django secrets, and provider tokens may not.
-- Generate `DJANGO_SECRET_KEY` in Phase 14 with a secret manager or a
-  process-only command such as `python -c "import secrets; print(secrets.token_urlsafe(64))"`;
-  do not paste it into a report or tracked file.
+Preview must not be silently pointed at production. Never put secret values in
+tracked files, documentation, browser variables, or release notes.
+
+## Verified state and boundaries
+
+The catalog is 8 Categories, 8 Collections, 24 Products, and 48 ProductImages;
+all 24 products are published. Cloudinary-backed images are 48/48,
+`representative_demo` is 48, and `verified_product` is 0. Django Admin is
+available at `/admin/` to the active production superuser. `siteConfig.isDemo`
+is `true`; ordering, checkout, payments, customer authentication, reviews, and
+commercial inventory are disabled. Phase 16 owns real catalog/photography;
+Phase 17 owns commercial activation.
+
+The Railway healthcheck calls `/health/` and must receive HTTP 200. The API root
+`/api/v1/` must receive HTTP 200. The explicit `DJANGO_ALLOWED_HOSTS` value
+must include the Railway backend hostname and `healthcheck.railway.app`.

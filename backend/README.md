@@ -1,6 +1,19 @@
 # Aurevia Jewels Django backend
 
-This directory contains the Django foundation for Aurevia Jewels. The existing Next.js storefront remains the public demo storefront and is not integrated with this backend in Phase 1.
+This directory contains the production Django/DRF backend for Aurevia Jewels
+v1.2. The existing Next.js storefront consumes its anonymous read-only catalog
+API through server-side requests; the browser never calls Django directly.
+
+## v1.2 production status
+
+Railway runs this service with private Railway PostgreSQL and Cloudinary-backed
+media. The verified production catalog contains 8 Categories, 8 Collections,
+24 published Products, and 48 ProductImages. All 48 images are
+`representative_demo`; `verified_product` remains at 0. Django Admin is
+available at `/admin/` for the active production staff user. The public API is
+read-only and anonymous, and the storefront remains demo-safe: no customer
+authentication, ordering, checkout, payments, reviews, or commercial
+activation.
 
 ## Requirements
 
@@ -64,9 +77,13 @@ python backend\manage.py migrate --settings=config.settings.development
 python backend\manage.py test --settings=config.settings.development
 ```
 
-Never commit `backend/.env.local.ps1` or any database credential. The repository's `.env.example` contains placeholders only. The current schema is intentionally empty of catalog data; Phase 6 owns data migration. Phase 4 owns Cloudinary integration.
+Never commit `backend/.env.local.ps1` or any database credential. The
+repository's `.env.example` contains placeholders only. The production schema
+and demo catalog are populated; do not treat local development fixtures or
+historical phase notes as production credentials or data.
 
-The storefront remains demo-only: commercial activation, live ordering, Cloudinary, and frontend/API integration are deferred to their locked phases.
+The storefront remains demo-only. Phase 16 owns real product catalog and
+photography onboarding; Phase 17 owns commercial activation.
 
 ## Phase 4 Cloudinary product media
 
@@ -119,7 +136,9 @@ Abbreviated product response:
 }
 ```
 
-Catalog data migration remains Phase 6, Next.js integration remains Phase 7, and search/filtering/pagination remain Phase 8. Caching, resilience, authentication, and commercial ordering are not part of this API phase.
+The v1.2 production API also includes the completed catalog migration,
+Next.js integration, search/filtering, dynamic collections, caching, and
+resilience work. Commercial ordering remains disabled.
 
 ## Phase 6 legacy catalog migration
 

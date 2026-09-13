@@ -65,19 +65,30 @@ Django Admin at `/admin/` is the only authenticated surface and requires an acti
 
 This repository is prepared for a public demo deployment, not a commercial launch. Demo contact details and image provenance still require business-owner verification before real commercial use.
 
-## Phase 13 production preparation
+## Aurevia Jewels v1.2 production release
 
-The deployment topology is the existing Vercel project `aurevia-jewels` with a
-Railway Django service rooted at `/backend`, Railway private PostgreSQL, and
-the existing Cloudinary assets. The backend uses Gunicorn and WhiteNoise;
-Railway runs migrations as a pre-deploy command and checks `/health/`. The
-frontend consumes Django only from Next.js server code through the server-only
-`AUREVIA_CATALOG_API_BASE_URL`; no CORS or browser-to-Django calls are needed.
+The verified production topology is the existing Vercel project `aurevia-jewels`
+(`prj_tprzlBVqlGKwp5x1FEJS4eXwsaz0`) in front of a Railway Django/DRF backend,
+Railway-managed private PostgreSQL, and Cloudinary-backed product media.
+The canonical storefront is [aurevia-jewels-gamma.vercel.app](https://aurevia-jewels-gamma.vercel.app)
+and the backend is [backend-production-b210.up.railway.app](https://backend-production-b210.up.railway.app).
 
-See [`docs/production-environment.md`](docs/production-environment.md) and
+The browser talks only to Next.js. Next.js server code reads the Django API via
+the server-only `AUREVIA_CATALOG_API_BASE_URL`; no browser-direct Django access,
+CORS, or shared API key is used. Production is verified with 8 categories,
+8 collections, 24 published products, and 48 Cloudinary-backed product images.
+All 48 images are `representative_demo`; none are `verified_product`.
+
+This remains a demo-safe storefront: `siteConfig.isDemo = true`, ordering,
+checkout, payments, customer authentication, reviews, and commercial inventory
+are disabled. Real product catalog and photography onboarding belongs to Phase
+16; commercial activation belongs to Phase 17.
+
+See [`docs/releases/v1.2.md`](docs/releases/v1.2.md),
+[`docs/production-environment.md`](docs/production-environment.md), and
 [`docs/production-deployment-runbook.md`](docs/production-deployment-runbook.md)
-for the future Phase 14 operator steps. Phase 13 performs no provider login,
-deployment, push, tag, database provisioning, or Cloudinary mutation.
+for the release manifest, environment variable names, health checks, recovery,
+and operator procedures.
 
 ## Asset provenance
 
