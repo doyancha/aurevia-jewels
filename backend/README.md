@@ -94,3 +94,15 @@ Abbreviated product response:
 ```
 
 Catalog data migration remains Phase 6, Next.js integration remains Phase 7, and search/filtering/pagination remain Phase 8. Caching, resilience, authentication, and commercial ordering are not part of this API phase.
+
+## Phase 6 legacy catalog migration
+
+The operational migration command extracts the locked v1.1.2 arrays directly from `src/data/products.ts` and `src/data/collections.ts` with the repository's narrow Node extractor (`scripts/export-nextjs-catalog.mjs`). No catalog records are manually retyped. Run the complete preflight first:
+
+```powershell
+. .\backend\.env.local.ps1
+.venv\Scripts\python.exe backend\manage.py import_nextjs_catalog --dry-run --settings=config.settings.development
+.venv\Scripts\python.exe backend\manage.py import_nextjs_catalog --apply --settings=config.settings.development
+```
+
+Mutation requires the explicit `--apply` flag. The dry run performs source, image, database collision, and credential checks without database writes or Cloudinary calls. The apply is idempotent and resumable: matching rows are reused, identity drift is refused, complete ProductImages are not uploaded again, and partial progress is retained for retry. Product image source paths remain traceability fields; every ProductImage owns a separate Cloudinary asset and remains `representative_demo`. The importer publishes each demo product only after its two images and usable primary image are ready. A second apply should be a no-op. Collection images remain legacy paths, and no Collection-to-Category relationship is introduced. The Next.js source remains the storefront source until Phase 7. Automated importer tests mock Cloudinary; only the real apply performs live uploads.
