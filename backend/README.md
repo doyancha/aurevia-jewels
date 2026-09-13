@@ -59,3 +59,38 @@ The standard Django Admin is available at `/admin/` for authenticated catalog st
 - A future published-product image requirement is a cross-row/domain invariant for Phase 2/3 validation, not a PostgreSQL `CHECK` constraint.
 - Phase 4 Cloudinary deletion must use independently owned assets or explicit reference-aware shared asset management; removing one relationship must not delete an asset still used elsewhere.
 - Future publication state must remain separate from commercial activation. Publishing a product must never enable ordering automatically.
+
+## Phase 5 read-only catalog API
+
+The versioned public API is available under `GET /api/v1/` and is anonymous and read-only. It exposes these resources:
+
+- `GET /api/v1/categories/` and `GET /api/v1/categories/<slug>/`
+- `GET /api/v1/collections/` and `GET /api/v1/collections/<slug>/`
+- `GET /api/v1/products/` and `GET /api/v1/products/<slug>/`
+
+Detail routes use slugs. Categories and collections include only active records. Products include only published records whose category is active and which have a usable, non-retired primary image. Public product images expose one storage-independent `url`, preferring a stored Cloudinary `secure_url` and falling back to the legacy `source_path`; Cloudinary IDs, provenance, and other storage fields are never exposed. Collection images are returned as `image_url` using the transitional legacy path.
+
+Prices are exact decimal strings such as `"1250.00"`; an absent compare-at price is `null`. Product responses include nested category and active collection summaries, availability machine/status values and labels, JSON arrays for occasions/tags/badges, and deterministically ordered images. There is no pagination, filtering, or search yet. No public write endpoints exist.
+
+Abbreviated product response:
+
+```json
+{
+  "slug": "sample-necklace",
+  "name": "Sample Necklace",
+  "product_code": "AJ-SAMPLE-001",
+  "category": {"name": "Necklaces", "slug": "necklaces"},
+  "collections": [{"name": "Evening", "slug": "evening"}],
+  "price": "1250.00",
+  "compare_at_price": null,
+  "currency_code": "BDT",
+  "availability_status": "made_to_order",
+  "availability_label": "Made to Order",
+  "occasions": ["Wedding"],
+  "tags": ["gold-tone"],
+  "badges": ["New Arrival"],
+  "images": [{"url": "/images/source/sample-necklace.jpg", "alt_text": "Sample necklace", "sort_order": 0, "is_primary": true, "width": 1200, "height": 1200}]
+}
+```
+
+Catalog data migration remains Phase 6, Next.js integration remains Phase 7, and search/filtering/pagination remain Phase 8. Caching, resilience, authentication, and commercial ordering are not part of this API phase.
