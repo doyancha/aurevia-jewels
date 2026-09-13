@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.forms.models import inlineformset_factory
 
 from catalog import media
@@ -12,6 +12,11 @@ from catalog.models import Category, Product, ProductImage
 from catalog.forms import ProductImageAdminForm, ProductImageInlineFormSet
 
 
+@override_settings(
+    CLOUDINARY_CLOUD_NAME="test-cloud",
+    CLOUDINARY_API_KEY="test-key",
+    CLOUDINARY_API_SECRET="test-secret",
+)
 class CloudinaryMediaTests(TestCase):
     def setUp(self):
         category = Category.objects.create(name="Necklaces", slug="necklaces")

@@ -28,6 +28,14 @@ python backend\manage.py runserver 8000
 
 The foundation health check is available at `GET http://127.0.0.1:8000/health/` and returns `{"status":"ok"}`. It is process-level only and does not touch PostgreSQL.
 
+## Phase 10 authentication and security
+
+The only authenticated surface is Django Admin at `/admin/`, using Django session authentication for active staff users and standard model permissions. Superusers retain normal Django full access. Admin sessions are CSRF-protected; production uses HTTPS redirects, secure HttpOnly `SameSite=Lax` cookies, browser-close expiry, an eight-hour session age, staged one-hour HSTS, security headers, and Django 6.1 native enforced CSP. CSP permits only same-origin backend assets plus the required `https://res.cloudinary.com` image origin; no `unsafe-inline` script or wildcard source is used.
+
+The catalog API remains intentionally anonymous and read-only. Its Category, Collection, and Product endpoints accept public GET/HEAD/OPTIONS only; an Admin session does not grant API write access. There is no customer authentication, REST login, API token, or JWT in this phase. The storefront server consumes the API, so no CORS or shared API key is needed. Production requires `DJANGO_SECRET_KEY` (a non-placeholder value at least 50 characters) and explicit `DJANGO_ALLOWED_HOSTS`; optional `DJANGO_CSRF_TRUSTED_ORIGINS` accepts explicit HTTP(S) origins only. `DJANGO_TRUST_X_FORWARDED_PROTO=true` is an explicit opt-in only: the trusted proxy must strip client-supplied `X-Forwarded-Proto`, set it itself, and mark HTTPS only for an HTTPS-origin request.
+
+Admin login rate limiting is intentionally deferred to the real edge/proxy/WAF deployment layer. Django-side IP throttling would aggregate all server-side Next.js catalog traffic and local-memory login throttling would not be production-grade. This remains a Phase 13/14 deployment requirement.
+
 PostgreSQL 18.x is required for local development. Phase 2 uses the dedicated local database `aurevia_jewels` and development role `aurevia_dev`; the role is not a PostgreSQL superuser and is intended only for local Django development and isolated test-database creation.
 
 For a local PowerShell session, load the Git-ignored credential file (created during local bootstrap) before running Django commands:

@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.forms import inlineformset_factory
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from catalog.admin import CategoryAdmin, CollectionAdmin, ProductAdmin, ProductImageInline
@@ -60,6 +60,41 @@ class CatalogAdminTests(TestCase):
             response = self.client.get(reverse(f"admin:catalog_{model._meta.model_name}_changelist"))
             self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.get(reverse("admin:catalog_product_add")).status_code, 200)
+
+    def test_admin_requires_active_staff_user(self):
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
+        non_staff = get_user_model().objects.create_user(
+            username="non-staff", password="test-password", is_active=True, is_staff=False
+        )
+        self.client.force_login(non_staff)
+        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
+        inactive_staff = get_user_model().objects.create_user(
+            username="inactive-staff", password="test-password", is_active=False, is_staff=True
+        )
+        self.client.force_login(inactive_staff)
+        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
+
+    def test_admin_login_requires_csrf(self):
+        client = Client(enforce_csrf_checks=True)
+        response = client.post(reverse("admin:login"), {"username": "x", "password": "y"})
+        self.assertEqual(response.status_code, 403)
+
+    def test_product_image_inline_requires_explicit_model_permissions(self):
+        inline = ProductImageInline(Product, admin.site)
+        view_only = get_user_model().objects.create_user(username="view-only", is_staff=True)
+        view_only.user_permissions.add(
+            *[p for p in view_only.user_permissions.model.objects.filter(codename="view_productimage")]
+        )
+        request = self.client.request().wsgi_request
+        request.user = view_only
+        self.assertFalse(inline.has_add_permission(request))
+        self.assertFalse(inline.has_change_permission(request))
+        self.assertFalse(inline.has_delete_permission(request))
+        request.user = self.user
+        self.assertTrue(inline.has_add_permission(request))
+        self.assertTrue(inline.has_change_permission(request))
+        self.assertTrue(inline.has_delete_permission(request))
 
     def test_admin_configuration_protects_slugs_legacy_fields_and_publication(self):
         category_admin = admin.site._registry[Category]

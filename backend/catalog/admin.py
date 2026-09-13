@@ -55,6 +55,15 @@ class ProductImageInline(admin.TabularInline):
         "source_path", "cloudinary_public_id", "secure_url", "width", "height", "created_at", "updated_at",
     )
 
+    def has_add_permission(self, request, obj=None):
+        return request.user.has_perm("catalog.add_productimage")
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perm("catalog.change_productimage")
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.has_perm("catalog.delete_productimage")
+
 
 @admin.register(Product)
 class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):

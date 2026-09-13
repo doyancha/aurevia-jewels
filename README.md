@@ -41,6 +41,10 @@ Set `NEXT_PUBLIC_SITE_URL` in Vercel after the first deployment so canonical URL
 
 The Django API is now the storefront catalog source of truth. The legacy TypeScript catalog remains unchanged for migration audit/history and is not used by runtime storefront paths.
 
+## Backend security boundary
+
+Django Admin at `/admin/` is the only authenticated surface and requires an active staff user using Django’s built-in session authentication and model permissions. Production requires a strong `DJANGO_SECRET_KEY`, explicit `DJANGO_ALLOWED_HOSTS`, HTTPS, secure `HttpOnly` `SameSite=Lax` cookies, staged HSTS, and native Django CSP. The public catalog API remains anonymous and read-only; Admin sessions do not enable API writes. This phase adds no customer accounts, JWT, REST tokens, CORS, or shared API key. Admin login rate limiting remains an edge/proxy/WAF requirement for the deployment phases after the production topology is known.
+
 ## Deployment note
 
 This repository is prepared for a public demo deployment, not a commercial launch. Demo contact details and image provenance still require business-owner verification before real commercial use.

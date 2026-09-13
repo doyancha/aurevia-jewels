@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.test import TestCase
+from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
 from catalog.models import Category, Collection, Product, ProductImage
@@ -139,6 +140,14 @@ class CatalogApiTests(TestCase):
         self.assertEqual([item["slug"] for item in self.client.get("/api/v1/products/").json()], ["a-product", "b-product"])
         for path, method in (("/api/v1/products/", "post"), ("/api/v1/products/a-product/", "put"), ("/api/v1/products/a-product/", "patch"), ("/api/v1/products/a-product/", "delete"), ("/api/v1/categories/", "post"), ("/api/v1/collections/", "post")):
             self.assertEqual(getattr(self.client, method)(path, {}, format="json").status_code, 405)
+
+    def test_admin_session_does_not_enable_catalog_writes(self):
+        admin_user = get_user_model().objects.create_superuser(
+            username="api-admin", password="test-password", email="api@example.com"
+        )
+        self.client.force_authenticate(user=admin_user)
+        self.assertEqual(self.client.post("/api/v1/products/", {}, format="json").status_code, 405)
+        self.assertEqual(self.client.get("/api/v1/categories/").status_code, 200)
 
     def test_missing_resources_return_404_and_no_product_image_route_exists(self):
         for path in ("/api/v1/categories/missing/", "/api/v1/collections/missing/", "/api/v1/products/missing/", "/api/v1/product-images/", "/api/v1/images/"):
