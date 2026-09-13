@@ -1,0 +1,16 @@
+.venv
+__pycache__
+*.py[cod]
+.env*
+.env.local.ps1
+staticfiles
+.pytest_cache
+.coverage
+htmlcov
+coverage.xml
+.git
+*.dump
+*.sql
+*.sqlite3
+*.tmp
+*.bak

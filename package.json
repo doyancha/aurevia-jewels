@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "verify:catalog-contract": "node scripts/verify-catalog-contract.mjs",
-    "verify:local-fullstack": "node scripts/verify-local-fullstack.mjs"
+    "verify:local-fullstack": "node scripts/verify-local-fullstack.mjs",
+    "verify:production-config": "node scripts/verify-production-config.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.1.1",

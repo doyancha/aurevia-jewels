@@ -9,6 +9,7 @@ This directory contains the Django foundation for Aurevia Jewels. The existing N
 - Django REST Framework `3.18.1`
 - Psycopg `3.3.5` with its binary distribution
 - Cloudinary Python SDK `1.46.2`
+- Production-only runtime: Gunicorn `26.2.0` and WhiteNoise `6.12.0`
 
 Use the existing repository virtual environment at `..\.venv`; do not install these packages globally.
 
@@ -27,6 +28,23 @@ python backend\manage.py runserver 8000
 ```
 
 The foundation health check is available at `GET http://127.0.0.1:8000/health/` and returns `{"status":"ok"}`. It is process-level only and does not touch PostgreSQL.
+
+## Production runtime preparation
+
+Production uses [`Dockerfile`](Dockerfile) and Gunicorn with
+`config.wsgi:application`, binding to Railway’s injected `PORT` (local fallback
+8000), two workers by default, and a 45-second bounded timeout. The container
+runs `collectstatic --noinput` before Gunicorn; migrations are configured in
+[`railway.toml`](railway.toml) as Railway’s pre-deploy command and are not part
+of ordinary startup. WhiteNoise serves Django Admin static files from the
+manifest-backed `staticfiles/` directory.
+
+Production settings require an explicit PostgreSQL `DATABASE_URL` (preferred)
+or complete non-local `POSTGRES_*` values. They never fall back to the local
+development database. Railway’s `healthcheck.railway.app` must be included in
+the explicit `DJANGO_ALLOWED_HOSTS` value, and
+`DJANGO_TRUST_X_FORWARDED_PROTO=true` is required only in the trusted Railway
+production environment.
 
 ## Phase 10 authentication and security
 

@@ -1,0 +1,9 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+preDeployCommand = ["python manage.py migrate --noinput --settings=config.settings.production"]
+healthcheckPath = "/health/"
+healthcheckTimeout = 300
+restartPolicyType = "ALWAYS"

@@ -1,5 +1,5 @@
 import os
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.csp import CSP
@@ -8,6 +8,48 @@ from .base import *  # noqa: F403
 
 
 DEBUG = False
+
+
+def _production_database():
+    """Require an explicit Railway/PostgreSQL connection; never use dev defaults."""
+    database_url = os.environ.get("DATABASE_URL", "").strip()
+    if database_url:
+        parsed = urlsplit(database_url)
+        if parsed.scheme not in {"postgres", "postgresql"} or not parsed.hostname:
+            raise ImproperlyConfigured("DATABASE_URL must be an explicit PostgreSQL URL.")
+        query = parse_qs(parsed.query)
+        options = {}
+        if "sslmode" in query:
+            options["sslmode"] = query["sslmode"][0]
+        return {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": unquote(parsed.path.lstrip("/")),
+            "USER": unquote(parsed.username or ""),
+            "PASSWORD": unquote(parsed.password or ""),
+            "HOST": parsed.hostname,
+            "PORT": str(parsed.port or 5432),
+            "OPTIONS": options,
+        }
+
+    names = ("POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST")
+    values = {name: os.environ.get(name, "").strip() for name in names}
+    if not all(values.values()):
+        raise ImproperlyConfigured(
+            "Production requires DATABASE_URL or complete explicit POSTGRES_* variables."
+        )
+    if values["POSTGRES_HOST"].lower() in {"localhost", "127.0.0.1", "::1"}:
+        raise ImproperlyConfigured("Production PostgreSQL host must not be local development.")
+    return {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": values["POSTGRES_DB"],
+        "USER": values["POSTGRES_USER"],
+        "PASSWORD": values["POSTGRES_PASSWORD"],
+        "HOST": values["POSTGRES_HOST"],
+        "PORT": os.environ.get("POSTGRES_PORT", "5432").strip(),
+    }
+
+
+DATABASES = {"default": _production_database()}
 
 
 def _required_secret_key():
@@ -43,6 +85,17 @@ for origin in CSRF_TRUSTED_ORIGINS:
         )
 
 SECRET_KEY = _required_secret_key()
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    *MIDDLEWARE[1:],
+]
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True

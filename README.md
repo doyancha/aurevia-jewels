@@ -65,6 +65,20 @@ Django Admin at `/admin/` is the only authenticated surface and requires an acti
 
 This repository is prepared for a public demo deployment, not a commercial launch. Demo contact details and image provenance still require business-owner verification before real commercial use.
 
+## Phase 13 production preparation
+
+The deployment topology is the existing Vercel project `aurevia-jewels` with a
+Railway Django service rooted at `/backend`, Railway private PostgreSQL, and
+the existing Cloudinary assets. The backend uses Gunicorn and WhiteNoise;
+Railway runs migrations as a pre-deploy command and checks `/health/`. The
+frontend consumes Django only from Next.js server code through the server-only
+`AUREVIA_CATALOG_API_BASE_URL`; no CORS or browser-to-Django calls are needed.
+
+See [`docs/production-environment.md`](docs/production-environment.md) and
+[`docs/production-deployment-runbook.md`](docs/production-deployment-runbook.md)
+for the future Phase 14 operator steps. Phase 13 performs no provider login,
+deployment, push, tag, database provisioning, or Cloudinary mutation.
+
 ## Asset provenance
 
 See [`docs/asset-provenance.md`](docs/asset-provenance.md) for the current storefront image inventory and source-verification status.

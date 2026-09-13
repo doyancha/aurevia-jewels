@@ -35,6 +35,7 @@ class ProductionSettingsTests(SimpleTestCase):
             DJANGO_SECRET_KEY=strong,
             DJANGO_ALLOWED_HOSTS="example.com",
             DJANGO_CSRF_TRUSTED_ORIGINS="https://example.com",
+            DATABASE_URL="postgresql://phase13_user:phase13_password@railway.internal:5432/phase13",
         )
         self.assertEqual(result.returncode, 0, result.stderr)
 
