@@ -13,9 +13,10 @@ interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   products: Product[];
+  catalogAvailable: boolean;
 }
 
-export function SearchOverlay({ isOpen, onClose, products }: SearchOverlayProps) {
+export function SearchOverlay({ isOpen, onClose, products, catalogAvailable }: SearchOverlayProps) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -153,7 +154,13 @@ export function SearchOverlay({ isOpen, onClose, products }: SearchOverlayProps)
 
           <div className="flex-1 overflow-y-auto">
             <div className="w-full max-w-[92rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
-              {showDiscoveryState ? (
+              {!catalogAvailable ? (
+                <div className="max-w-2xl rounded-3xl border border-champagne/30 bg-white/90 p-8 shadow-sm">
+                  <h3 className="font-serif text-2xl text-charcoal">Search is temporarily unavailable.</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-charcoal/65">Our catalog search is taking a short pause. You can continue browsing the shop while we restore it.</p>
+                  <Link href="/shop" onClick={closeOverlay} className="mt-6 inline-flex rounded-full bg-charcoal px-5 py-3 text-sm font-medium text-ivory transition-colors hover:bg-charcoal/85 focus:outline-none focus:ring-2 focus:ring-champagne focus:ring-offset-2">Browse the shop</Link>
+                </div>
+              ) : showDiscoveryState ? (
                 <div className="space-y-10">
                   <div>
                     <div className="flex items-end justify-between gap-4 mb-5">

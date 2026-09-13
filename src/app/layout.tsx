@@ -7,7 +7,8 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { WhatsAppDemoProvider } from "@/components/ui/WhatsAppDemoDialog";
 import { siteConfig } from "@/config/site";
-import { getProducts } from '@/lib/catalog-api';
+import { getProducts, logCatalogWarning } from '@/lib/catalog-api';
+import type { Product } from '@/types';
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -89,13 +90,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const products = await getProducts();
+  let products: Product[] = [];
+  let catalogAvailable = true;
+  try {
+    products = await getProducts();
+  } catch (error) {
+    catalogAvailable = false;
+    logCatalogWarning(error, 'global search catalog unavailable');
+  }
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`} data-scroll-behavior="smooth">
       <body className="min-h-screen flex flex-col bg-ivory text-charcoal antialiased">
         <WhatsAppDemoProvider>
           <AnnouncementBar />
-          <Header products={products} />
+          <Header products={products} catalogAvailable={catalogAvailable} />
           <main className="flex-1">{children}</main>
           <Footer />
           <FloatingWhatsApp />

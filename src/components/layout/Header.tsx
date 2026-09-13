@@ -12,7 +12,7 @@ import { SearchOverlay } from './SearchOverlay';
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
 import type { Product } from '@/types';
 
-export function Header({ products }: { products: Product[] }) {
+export function Header({ products, catalogAvailable }: { products: Product[]; catalogAvailable: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -99,7 +99,7 @@ export function Header({ products }: { products: Product[] }) {
       </motion.header>
 
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      <SearchOverlay products={products} isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchOverlay products={products} catalogAvailable={catalogAvailable} isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 }

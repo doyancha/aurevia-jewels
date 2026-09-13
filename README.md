@@ -48,3 +48,20 @@ This repository is prepared for a public demo deployment, not a commercial launc
 ## Asset provenance
 
 See [`docs/asset-provenance.md`](docs/asset-provenance.md) for the current storefront image inventory and source-verification status.
+# Catalog resilience
+
+The storefront reads the Django catalog only from Next.js server code through
+`AUREVIA_CATALOG_API_BASE_URL`; the browser never calls Django directly. Each
+catalog request has a 5-second timeout and at most one retry (two total
+attempts) for network errors, timeouts, and HTTP 502/503/504 responses.
+
+Stable catalog reads use Next's server Data Cache with 60-second revalidation:
+categories, collections, details, the unfiltered product list, and bounded
+filters. Search and any `min_price` or `max_price` filter use `cache: no-store`
+to avoid high-cardinality cache keys. Previously successful cached data may be
+served during normal stale-on-revalidation behavior; a cold upstream failure is
+surfaced as a branded error state. Global search is optional and explicitly
+shows that it is temporarily unavailable if its catalog read fails.
+
+The storefront never falls back to the historical static catalog files. Builds,
+sitemap generation, and required catalog pages intentionally remain API-backed.
