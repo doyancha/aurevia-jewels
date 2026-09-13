@@ -1,0 +1,57 @@
+{
+  "contract_version": "v1",
+  "api_prefix": "/api/v1",
+  "resources": {
+    "categories": {
+      "list_path": "/categories/",
+      "detail_path": "/categories/{slug}/",
+      "methods": ["GET", "HEAD", "OPTIONS"],
+      "fields": {"name": "string", "slug": "string", "description": "string"}
+    },
+    "collections": {
+      "list_path": "/collections/",
+      "detail_path": "/collections/{slug}/",
+      "methods": ["GET", "HEAD", "OPTIONS"],
+      "fields": {"name": "string", "slug": "string", "description": "string", "image_url": "string|null"}
+    },
+    "products": {
+      "list_path": "/products/",
+      "detail_path": "/products/{slug}/",
+      "methods": ["GET", "HEAD", "OPTIONS"],
+      "fields": {
+        "slug": "string", "name": "string", "product_code": "string",
+        "category": "category_summary", "collections": "collection_summary[]",
+        "price": "decimal_string", "compare_at_price": "decimal_string|null", "currency_code": "string",
+        "short_description": "string", "description": "string", "long_description": "string",
+        "material": "string", "color": "string", "finish": "string", "dimensions": "string",
+        "occasions": "string[]", "tags": "string[]", "badges": "string[]",
+        "availability_status": "string", "availability_label": "string",
+        "is_featured": "boolean", "is_new_arrival": "boolean", "is_best_seller": "boolean",
+        "seo_title": "string", "seo_description": "string", "images": "image[]"
+      }
+    }
+  },
+  "nested_fields": {
+    "category_summary": {"name": "string", "slug": "string"},
+    "collection_summary": {"name": "string", "slug": "string"},
+    "image": {"url": "string", "alt_text": "string", "sort_order": "integer", "is_primary": "boolean", "width": "integer|null", "height": "integer|null"}
+  },
+  "product_query_parameters": {
+    "search": "string", "category": "string", "collection": "string", "availability": "string",
+    "featured": "boolean_string", "new_arrival": "boolean_string", "best_seller": "boolean_string",
+    "min_price": "non_negative_decimal", "max_price": "non_negative_decimal",
+    "sort": "default|featured|newest|price_asc|price_desc|name_asc|name_desc"
+  },
+  "availability_values": ["ask_about_availability", "made_to_order"],
+  "forbidden_fields": [
+    "id", "pk", "legacy_key", "legacy_code", "is_published", "display_order", "created_at", "updated_at",
+    "cloudinary_public_id", "cloudinary_resource_type", "source_path", "secure_url", "provenance_status"
+  ],
+  "semantics": {
+    "read_only": true,
+    "unknown_product_query_parameter_status": 400,
+    "money_is_string": true,
+    "public_products_require_published_active_category_and_usable_primary_image": true,
+    "inactive_collections_are_omitted_from_nested_products": true
+  }
+}

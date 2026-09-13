@@ -30,6 +30,20 @@ npm run build
 npm start
 ```
 
+The canonical backend regression suite is:
+
+```powershell
+.venv\Scripts\python.exe backend\manage.py test catalog core --settings=config.settings.development
+```
+
+With Django running locally, verify the live read-only API contract with:
+
+```powershell
+npm run verify:catalog-contract
+```
+
+The machine-readable contract is [`contracts/catalog-api-v1.json`](contracts/catalog-api-v1.json). Backend tests use Django's isolated test database, mock Cloudinary, and require no external network. Public API breaking changes require coordinated v1-compatible updates or a future `/api/v2/`; Phase 12 remains full-stack integration QA.
+
 ## Environment
 
 Copy `.env.example` to `.env.local` for local overrides if needed. The main public variable is:
