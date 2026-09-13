@@ -48,11 +48,11 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
     ordering = ("sort_order", "pk")
     fields = (
-        "source_path", "alt_text", "sort_order", "is_primary", "provenance_status",
+        "upload_file", "source_path", "alt_text", "sort_order", "is_primary", "provenance_status",
         "cloudinary_public_id", "secure_url", "width", "height", "created_at", "updated_at",
     )
     readonly_fields = (
-        "cloudinary_public_id", "secure_url", "width", "height", "created_at", "updated_at",
+        "source_path", "cloudinary_public_id", "secure_url", "width", "height", "created_at", "updated_at",
     )
 
 

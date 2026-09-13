@@ -1,8 +1,10 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.forms.models import BaseInlineFormSet
 
 from .models import Category, Collection, Product, ProductImage
+from .media import validate_upload_file, upload_image, destroy_remote_asset
 
 
 ADMIN_PROVENANCE_CHOICES = (
@@ -45,6 +47,10 @@ class ProductAdminForm(forms.ModelForm):
 
 
 class ProductImageAdminForm(forms.ModelForm):
+    upload_file = forms.FileField(
+        required=False,
+        help_text="Optional. JPG, PNG, WebP, or AVIF; maximum 10 MiB.",
+    )
     provenance_status = forms.ChoiceField(
         choices=ADMIN_PROVENANCE_CHOICES,
         help_text="Verified product photography is reserved for a later onboarding phase.",
@@ -62,6 +68,30 @@ class ProductImageAdminForm(forms.ModelForm):
             )
         return value
 
+    def clean_upload_file(self):
+        upload_file = self.cleaned_data.get("upload_file")
+        if upload_file:
+            validate_upload_file(upload_file)
+        return upload_file
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.cleaned_data.get("DELETE"):
+            return cleaned_data
+        upload_file = cleaned_data.get("upload_file")
+        submitted_source_path = str(cleaned_data.get("source_path") or "").strip()
+        existing_media = bool(
+            self.instance.pk
+            and (
+                submitted_source_path
+                or self.instance.source_path.strip()
+                or (self.instance.cloudinary_public_id and self.instance.secure_url)
+            )
+        )
+        if not upload_file and not existing_media and not submitted_source_path and not self.instance.source_path.strip():
+            raise ValidationError("A new product image requires an upload file.")
+        return cleaned_data
+
 
 class ProductImageInlineFormSet(BaseInlineFormSet):
     def clean(self):
@@ -73,6 +103,7 @@ class ProductImageInlineFormSet(BaseInlineFormSet):
         for form in self.forms:
             data = getattr(form, "cleaned_data", {})
             if data and not data.get("DELETE", False):
+                data = {**data, "_instance": form.instance}
                 effective_images.append(data)
 
         if any(
@@ -91,13 +122,56 @@ class ProductImageInlineFormSet(BaseInlineFormSet):
             usable_primary = [
                 image for image in primary_images
                 if image.get("provenance_status") != ProductImage.ProvenanceStatus.RETIRED
-                and (
-                    str(image.get("source_path") or "").strip()
-                    or str(image.get("secure_url") or "").strip()
-                )
+                and self._image_has_media(image)
             ]
             if len(usable_primary) != 1:
                 raise ValidationError(
                     "A published product must have exactly one usable primary image "
                     "with a source path or secure URL."
                 )
+
+    @staticmethod
+    def _image_has_media(image):
+        if image.get("upload_file"):
+            return True
+        instance = image.get("_instance")
+        if instance:
+            return bool(instance.source_path.strip() or (instance.cloudinary_public_id and instance.secure_url))
+        return bool(str(image.get("source_path") or "").strip() or str(image.get("secure_url") or "").strip())
+
+    def save(self, commit=True):
+        if not commit:
+            return super().save(commit=False)
+        instances = super().save(commit=False)
+        uploaded_ids = []
+        replacements = []
+        try:
+            for form in self.forms:
+                if not form.cleaned_data or form.cleaned_data.get("DELETE"):
+                    continue
+                upload_file = form.cleaned_data.get("upload_file")
+                if not upload_file:
+                    continue
+                instance = form.instance
+                old_public_id = instance.cloudinary_public_id
+                metadata = upload_image(upload_file)
+                uploaded_ids.append(metadata["cloudinary_public_id"])
+                for field, value in metadata.items():
+                    setattr(instance, field, value)
+                if old_public_id:
+                    replacements.append(old_public_id)
+
+            for instance in self.changed_objects:
+                instance[0].save()
+            for instance in self.new_objects:
+                instance.save()
+            for instance in self.deleted_objects:
+                self.delete_existing(instance, commit=True)
+            self.save_m2m()
+            for old_public_id in replacements:
+                transaction.on_commit(lambda public_id=old_public_id: destroy_remote_asset(public_id))
+            return instances
+        except Exception:
+            for public_id in uploaded_ids:
+                destroy_remote_asset(public_id)
+            raise

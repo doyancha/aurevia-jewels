@@ -8,6 +8,7 @@ This directory contains the Django foundation for Aurevia Jewels. The existing N
 - Django `6.1.1`
 - Django REST Framework `3.18.1`
 - Psycopg `3.3.5` with its binary distribution
+- Cloudinary Python SDK `1.46.2`
 
 Use the existing repository virtual environment at `..\.venv`; do not install these packages globally.
 
@@ -40,6 +41,14 @@ python backend\manage.py test --settings=config.settings.development
 Never commit `backend/.env.local.ps1` or any database credential. The repository's `.env.example` contains placeholders only. The current schema is intentionally empty of catalog data; Phase 6 owns data migration. Phase 4 owns Cloudinary integration.
 
 The storefront remains demo-only: commercial activation, live ordering, Cloudinary, and frontend/API integration are deferred to their locked phases.
+
+## Phase 4 Cloudinary product media
+
+Admin image uploads use the official Cloudinary SDK server-side: Browser Admin → Django → Cloudinary. Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the backend environment. Unsigned browser uploads and frontend Cloudinary configuration are not used.
+
+Each `ProductImage` owns one unique Cloudinary image asset. New uploads use collision-resistant IDs under `aurevia-jewels/products/`; replacements upload a new asset, commit the database change, then delete the superseded asset. ProductImage and product-cascade deletion clean up owned assets after database commit, with not-found cleanup treated as complete. The database stores only the public ID, HTTPS URL, width, and height.
+
+Uploads are limited to JPG, JPEG, PNG, WebP, or AVIF images up to 10 MiB. Cloudinary storage does not change provenance: normal Admin uploads remain `representative_demo`, `retired` remains available, and `verified_product` remains blocked until Phase 16. Phase 6 owns migration of legacy demo media; no current storefront images are uploaded in Phase 4. To run the controlled live smoke test, use the project environment credentials, upload an ephemeral tiny image under `aurevia-jewels/phase4-smoke/<uuid>`, validate the response, and destroy it immediately. Never print or commit credentials. The storefront remains demo-only.
 
 ## Django Admin catalog management
 

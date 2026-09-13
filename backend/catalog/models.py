@@ -167,6 +167,16 @@ class ProductImage(models.Model):
                 condition=Q(is_primary=True),
                 name="product_one_primary_image",
             ),
+            models.UniqueConstraint(
+                fields=["cloudinary_public_id"],
+                condition=~Q(cloudinary_public_id=""),
+                name="product_image_cloudinary_id_unique",
+            ),
+            models.CheckConstraint(
+                condition=(Q(cloudinary_public_id="", secure_url="")
+                           | (~Q(cloudinary_public_id="") & ~Q(secure_url=""))),
+                name="product_image_cloudinary_metadata_pair",
+            ),
         ]
 
     def __str__(self):
