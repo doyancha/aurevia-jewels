@@ -9,7 +9,9 @@ with Railway or Vercel and does not execute any step below.
 2. Provision Railway PostgreSQL in the same project/environment. Keep database
    networking private and verify the provider backup capability before launch.
 3. Add the backend service from this repository, set service root to `/backend`,
-   and configure the custom file `/backend/railway.toml`.
+   and configure its Dockerfile, pre-deploy migration, and `/health/` healthcheck
+   in Railway service settings. Do not use the deprecated legacy `railway.toml`
+   Config as Code format.
 4. Configure the backend variables from
    [`production-environment.md`](production-environment.md). Generate a strong
    secret without printing it. Set explicit `DJANGO_ALLOWED_HOSTS` to the

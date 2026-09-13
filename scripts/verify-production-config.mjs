@@ -6,11 +6,9 @@ const read = (file) => readFileSync(`${root}${file}`, 'utf8');
 const checks = [
   ['backend/Dockerfile exists', existsSync(`${root}backend/Dockerfile`)],
   ['backend/.dockerignore exists', existsSync(`${root}backend/.dockerignore`)],
-  ['backend/railway.toml exists', existsSync(`${root}backend/railway.toml`)],
+  ['deprecated backend/railway.toml absent', !existsSync(`${root}backend/railway.toml`)],
   ['Gunicorn is production server', read('backend/Dockerfile').includes('gunicorn config.wsgi:application')],
   ['Railway uses PORT', read('backend/Dockerfile').includes('${PORT:-8000}')],
-  ['Railway healthcheck is /health/', read('backend/railway.toml').includes('healthcheckPath = "/health/"')],
-  ['Railway migrations are pre-deploy', read('backend/railway.toml').includes('preDeployCommand') && read('backend/railway.toml').includes('migrate --noinput')],
   ['No production runserver', !read('backend/Dockerfile').includes('runserver')],
   ['No wildcard production hosts', !read('backend/config/settings/production.py').includes('ALLOWED_HOSTS = ["*"]')],
   ['Catalog API variable is server-only', !read('.env.example').includes('NEXT_PUBLIC_AUREVIA_CATALOG_API_BASE_URL')],

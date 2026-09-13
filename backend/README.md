@@ -34,9 +34,9 @@ The foundation health check is available at `GET http://127.0.0.1:8000/health/` 
 Production uses [`Dockerfile`](Dockerfile) and Gunicorn with
 `config.wsgi:application`, binding to Railway’s injected `PORT` (local fallback
 8000), two workers by default, and a 45-second bounded timeout. The container
-runs `collectstatic --noinput` before Gunicorn; migrations are configured in
-[`railway.toml`](railway.toml) as Railway’s pre-deploy command and are not part
-of ordinary startup. WhiteNoise serves Django Admin static files from the
+runs `collectstatic --noinput` before Gunicorn; Railway’s production service
+settings provide the pre-deploy migration and `/health/` healthcheck, and are
+not part of ordinary startup. WhiteNoise serves Django Admin static files from the
 manifest-backed `staticfiles/` directory.
 
 Production settings require an explicit PostgreSQL `DATABASE_URL` (preferred)
