@@ -8,6 +8,12 @@ export interface ApiProductImage { url: string; alt_text: string; sort_order: nu
 export interface ApiProduct {
   slug: string; name: string; product_code: string; category: ApiProductCategory; collections: ApiProductCollection[]; price: string; compare_at_price: string | null; currency_code: string; short_description: string; description: string; long_description: string; material: string; color: string; finish: string; dimensions: string; occasions: string[]; tags: string[]; badges: string[]; availability_status: string; availability_label: string; is_featured: boolean; is_new_arrival: boolean; is_best_seller: boolean; seo_title: string; seo_description: string; images: ApiProductImage[];
 }
+export type ProductSort = 'default' | 'featured' | 'newest' | 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc';
+export interface ProductQuery {
+  search?: string; category?: string; collection?: string; availability?: string;
+  featured?: boolean; new_arrival?: boolean; best_seller?: boolean;
+  min_price?: number | string; max_price?: number | string; sort?: ProductSort;
+}
 
 const CATEGORY_NAMES: ProductCategory[] = ['Necklaces', 'Earrings', 'Rings', 'Bangles', 'Bracelets', 'Pendants', 'Bridal Sets', 'Jewelry Sets'];
 
@@ -52,5 +58,12 @@ export async function getCategories() { return (await request<ApiCategory[]>('ca
 export async function getCategoryBySlug(slug: string) { const value = await request<ApiCategory>(`categories/${encodeURIComponent(slug)}/`, true); return value ? validateCategory(value) : null; }
 export async function getCollections() { return (await request<ApiCollection[]>('collections/'))!.map(validateCollection).map(adaptCollection); }
 export async function getCollectionBySlug(slug: string) { const value = await request<ApiCollection>(`collections/${encodeURIComponent(slug)}/`, true); return value ? adaptCollection(validateCollection(value)) : null; }
-export async function getProducts() { return (await request<ApiProduct[]>('products/'))!.map(validateProduct).map(adaptProduct); }
+function productQuery(query?: ProductQuery) {
+  if (!query) return '';
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== '') params.set(key, String(value));
+  const suffix = params.toString();
+  return suffix ? `?${suffix}` : '';
+}
+export async function getProducts(query?: ProductQuery) { return (await request<ApiProduct[]>(`products/${productQuery(query)}`))!.map(validateProduct).map(adaptProduct); }
 export async function getProductBySlug(slug: string) { const value = await request<ApiProduct>(`products/${encodeURIComponent(slug)}/`, true); return value ? adaptProduct(validateProduct(value)) : null; }

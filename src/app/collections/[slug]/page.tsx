@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCollectionBySlug, getCollections, getProducts } from '@/lib/catalog-api';
-import { getProductsByCollection } from '@/lib/catalog-helpers';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { ProductGrid } from '@/components/ui/ProductGrid';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
@@ -48,7 +47,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     notFound();
   }
 
-  const products = getProductsByCollection(await getProducts(), collection.slug);
+  const products = await getProducts({ collection: collection.slug });
 
   return (
     <main className="min-h-screen py-10 bg-white">

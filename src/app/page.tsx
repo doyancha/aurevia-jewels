@@ -18,7 +18,9 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [products, collections] = await Promise.all([getProducts(), getCollections()]);
+  const [collections, featured, newArrivals, bestSellers] = await Promise.all([
+    getCollections(), getProducts({ featured: true }), getProducts({ new_arrival: true }), getProducts({ best_seller: true }),
+  ]);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -37,10 +39,10 @@ export default async function Home() {
 
       <Hero />
       <CollectionCategories collections={collections} />
-      <FeaturedProducts catalog={products} />
+      <FeaturedProducts catalog={featured} />
       <BridalBanner />
-      <NewArrivals catalog={products} />
-      <BestSellers catalog={products} />
+      <NewArrivals catalog={newArrivals} />
+      <BestSellers catalog={bestSellers} />
       <OccasionSection />
       <WhyChooseUs />
       <Testimonials />
