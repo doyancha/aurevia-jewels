@@ -41,6 +41,10 @@ Never commit `backend/.env.local.ps1` or any database credential. The repository
 
 The storefront remains demo-only: commercial activation, live ordering, Cloudinary, and frontend/API integration are deferred to their locked phases.
 
+## Django Admin catalog management
+
+The standard Django Admin is available at `/admin/` for authenticated catalog staff. Categories, collections, and products are registered with searchable, filterable changelists; product images are managed inline on products. Public slugs become read-only after creation, and publishing requires an active category plus one usable primary image. `verified_product` media is reserved until Phase 16, while Cloudinary remains Phase 4. No persistent superuser is created by this project phase, and the storefront remains demo-only.
+
 ## Deferred architecture notes
 
 - A future published-product image requirement is a cross-row/domain invariant for Phase 2/3 validation, not a PostgreSQL `CHECK` constraint.
