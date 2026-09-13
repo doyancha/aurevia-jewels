@@ -47,6 +47,7 @@ __pycache__/
 *.py[cod]
 *.sqlite3
 backend/.env
+backend/.env.local.ps1
 .env.local
 .pytest_cache/
 .coverage

@@ -27,7 +27,17 @@ python backend\manage.py runserver 8000
 
 The foundation health check is available at `GET http://127.0.0.1:8000/health/` and returns `{"status":"ok"}`. It is process-level only and does not touch PostgreSQL.
 
-PostgreSQL is configured as the architectural database through `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, and `POSTGRES_PORT`. Phase 1 does not create a database, define catalog models, create project migrations, or apply migrations. PostgreSQL schema and core data models begin in Phase 2.
+PostgreSQL 18.x is required for local development. Phase 2 uses the dedicated local database `aurevia_jewels` and development role `aurevia_dev`; the role is not a PostgreSQL superuser and is intended only for local Django development and isolated test-database creation.
+
+For a local PowerShell session, load the Git-ignored credential file (created during local bootstrap) before running Django commands:
+
+```powershell
+. .\backend\.env.local.ps1
+python backend\manage.py migrate --settings=config.settings.development
+python backend\manage.py test --settings=config.settings.development
+```
+
+Never commit `backend/.env.local.ps1` or any database credential. The repository's `.env.example` contains placeholders only. The current schema is intentionally empty of catalog data; Phase 6 owns data migration. Phase 4 owns Cloudinary integration.
 
 The storefront remains demo-only: commercial activation, live ordering, Cloudinary, and frontend/API integration are deferred to their locked phases.
 
