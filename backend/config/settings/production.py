@@ -97,6 +97,9 @@ STORAGES = {
     },
 }
 SECURE_SSL_REDIRECT = True
+# Railway's internal health probe is plain HTTP; keep the process-only health
+# endpoint reachable without weakening HTTPS enforcement for application routes.
+SECURE_REDIRECT_EXEMPT = [r"^health/$"]
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
