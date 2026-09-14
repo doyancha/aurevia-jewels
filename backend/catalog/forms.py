@@ -29,8 +29,8 @@ class ProductAdminForm(forms.ModelForm):
     is_published = forms.BooleanField(
         required=False,
         help_text=(
-            "Publishing makes this product eligible for the future catalog API; "
-            "it does not enable ordering or payments."
+            "Published controls storefront visibility only; it does not mean "
+            "verified inventory, verified photography, ordering, or payments."
         ),
     )
 
@@ -41,6 +41,12 @@ class ProductAdminForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         category = cleaned_data.get("category")
+        price = cleaned_data.get("price")
+        compare_at_price = cleaned_data.get("compare_at_price")
+        if price is not None and price < 0:
+            self.add_error("price", "Price cannot be negative.")
+        if compare_at_price is not None and price is not None and compare_at_price < price:
+            self.add_error("compare_at_price", "Compare-at price must be greater than or equal to price.")
         if cleaned_data.get("is_published") and category and not category.is_active:
             self.add_error("category", "A published product must use an active category.")
         return cleaned_data

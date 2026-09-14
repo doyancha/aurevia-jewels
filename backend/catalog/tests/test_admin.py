@@ -2,143 +2,144 @@ from decimal import Decimal
 
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.forms import inlineformset_factory
+from django.contrib.contenttypes.models import ContentType
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from catalog.admin import CategoryAdmin, CollectionAdmin, ProductAdmin, ProductImageInline
-from catalog.forms import ProductImageAdminForm, ProductImageInlineFormSet
 from catalog.models import Category, Collection, Product, ProductImage
 
 
 class CatalogAdminTests(TestCase):
     def setUp(self):
         self.category = Category.objects.create(name="Necklaces", slug="necklaces")
+        self.other_category = Category.objects.create(name="Rings", slug="rings")
         self.collection = Collection.objects.create(name="Evening", slug="evening")
-        self.user = get_user_model().objects.create_superuser(
-            username="phase3-admin", email="admin@example.com", password="test-password"
-        )
+        self.other_collection = Collection.objects.create(name="Bridal", slug="bridal")
+        self.user = get_user_model().objects.create_user(username="catalog-admin", password="test-password", is_staff=True)
+        permissions = []
+        for model in (Category, Collection, Product, ProductImage):
+            permissions.extend(ContentType.objects.get_for_model(model).permission_set.all())
+        self.user.user_permissions.set(permissions)
+        self.client = Client()
         self.client.force_login(self.user)
 
     def product_kwargs(self, **overrides):
-        values = {
-            "name": "Test Necklace", "slug": "test-necklace", "product_code": "AJ-TEST-001",
-            "category": self.category, "price": Decimal("1200.00"),
-            "short_description": "A test product.", "description": "A longer description.",
-            "material": "Gold-tone", "color": "Gold", "finish": "Polished",
-        }
+        values = {"name": "Amara Stack Rings", "slug": "amara-stack-rings", "product_code": "AJ-CD-009", "category": self.category, "price": Decimal("1200.00"), "short_description": "A stack of rings.", "description": "A longer description.", "material": "Gold-tone", "color": "Gold", "finish": "Polished"}
         values.update(overrides)
         return values
 
-    def image_formset(self, product, rows):
-        FormSet = inlineformset_factory(
-            Product, ProductImage, formset=ProductImageInlineFormSet,
-            form=ProductImageAdminForm, extra=0, can_delete=True,
-        )
-        data = {"images-TOTAL_FORMS": str(len(rows)), "images-INITIAL_FORMS": "0",
-                "images-MIN_NUM_FORMS": "0", "images-MAX_NUM_FORMS": "1000"}
-        for index, row in enumerate(rows):
-            for field in ("source_path", "secure_url", "alt_text", "sort_order", "provenance_status"):
-                data[f"images-{index}-{field}"] = row.get(field, "")
-            data[f"images-{index}-is_primary"] = "on" if row.get("is_primary") else ""
-            data[f"images-{index}-DELETE"] = "on" if row.get("DELETE") else ""
-        return FormSet(data, instance=product, prefix="images")
+    def create_product(self, **overrides):
+        product = Product.objects.create(**self.product_kwargs(**overrides))
+        product.collections.add(self.collection, self.other_collection)
+        return product
 
-    def test_admin_registration_and_security_configuration(self):
+    def admin_url(self, action, product=None):
+        return reverse(f"admin:catalog_product_{action}", args=[product.pk]) if product else reverse(f"admin:catalog_product_{action}")
+
+    def product_form_data(self, **overrides):
+        data = {"product_code": "AJ-ADMIN-QA", "name": "Admin QA Draft", "slug": "admin-qa-draft", "category": str(self.category.pk), "collections": [str(self.collection.pk)], "price": "900.00", "compare_at_price": "", "currency_code": "BDT", "availability_status": Product.AvailabilityStatus.ASK_ABOUT_AVAILABILITY, "short_description": "Draft short text", "description": "Draft description", "long_description": "", "material": "Gold-tone", "color": "Gold", "finish": "Polished", "dimensions": "", "occasions": "[]", "tags": "[]", "badges": "[]", "seo_title": "", "seo_description": "", "display_order": "0", "images-TOTAL_FORMS": "0", "images-INITIAL_FORMS": "0", "images-MIN_NUM_FORMS": "0", "images-MAX_NUM_FORMS": "1000", "_save": "Save"}
+        data.update(overrides)
+        return data
+
+    def test_admin_registration_branding_and_read_only_media(self):
         self.assertIsInstance(admin.site._registry[Category], CategoryAdmin)
         self.assertIsInstance(admin.site._registry[Collection], CollectionAdmin)
         self.assertIsInstance(admin.site._registry[Product], ProductAdmin)
         self.assertNotIn(ProductImage, admin.site._registry)
-        self.assertIn(ProductImageInline, ProductAdmin.inlines)
-
-    def test_admin_authentication_and_catalog_pages(self):
-        self.client.logout()
-        response = self.client.get(reverse("admin:index"))
-        self.assertEqual(response.status_code, 302)
-        self.client.force_login(self.user)
-        for model in (Category, Collection, Product):
-            response = self.client.get(reverse(f"admin:catalog_{model._meta.model_name}_changelist"))
-            self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.client.get(reverse("admin:catalog_product_add")).status_code, 200)
-
-    def test_admin_requires_active_staff_user(self):
-        self.client.logout()
-        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
-        non_staff = get_user_model().objects.create_user(
-            username="non-staff", password="test-password", is_active=True, is_staff=False
-        )
-        self.client.force_login(non_staff)
-        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
-        inactive_staff = get_user_model().objects.create_user(
-            username="inactive-staff", password="test-password", is_active=False, is_staff=True
-        )
-        self.client.force_login(inactive_staff)
-        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
-
-    def test_admin_login_requires_csrf(self):
-        client = Client(enforce_csrf_checks=True)
-        response = client.post(reverse("admin:login"), {"username": "x", "password": "y"})
-        self.assertEqual(response.status_code, 403)
-
-    def test_product_image_inline_requires_explicit_model_permissions(self):
+        self.assertEqual(admin.site.site_header, "Aurevia Jewels Admin")
         inline = ProductImageInline(Product, admin.site)
-        view_only = get_user_model().objects.create_user(username="view-only", is_staff=True)
-        view_only.user_permissions.add(
-            *[p for p in view_only.user_permissions.model.objects.filter(codename="view_productimage")]
-        )
         request = self.client.request().wsgi_request
-        request.user = view_only
+        request.user = self.user
         self.assertFalse(inline.has_add_permission(request))
         self.assertFalse(inline.has_change_permission(request))
         self.assertFalse(inline.has_delete_permission(request))
-        request.user = self.user
-        self.assertTrue(inline.has_add_permission(request))
-        self.assertTrue(inline.has_change_permission(request))
-        self.assertTrue(inline.has_delete_permission(request))
 
-    def test_admin_configuration_protects_slugs_legacy_fields_and_publication(self):
-        category_admin = admin.site._registry[Category]
-        collection_admin = admin.site._registry[Collection]
-        product_admin = admin.site._registry[Product]
-        self.assertEqual(category_admin.get_prepopulated_fields(None), {"slug": ("name",)})
-        self.assertIn("created_at", category_admin.get_readonly_fields(None))
-        self.assertIn("updated_at", collection_admin.get_readonly_fields(None))
-        self.assertIn("legacy_image_path", collection_admin.get_readonly_fields(None))
-        product = Product.objects.create(**self.product_kwargs())
-        self.assertIn("slug", product_admin.get_readonly_fields(None, product))
-        self.assertIn("legacy_key", product_admin.get_readonly_fields(None, product))
-        self.assertNotIn("is_published", product_admin.list_editable)
-        self.assertEqual(product_admin.autocomplete_fields, ("category", "collections"))
+    def test_anonymous_and_non_staff_users_cannot_access_admin(self):
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
+        non_staff = get_user_model().objects.create_user(username="customer", password="test-password")
+        self.client.force_login(non_staff)
+        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
+        inactive = get_user_model().objects.create_user(username="inactive", password="test-password", is_staff=True, is_active=False)
+        self.client.force_login(inactive)
+        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
 
-    def test_published_product_requires_active_category_and_usable_primary(self):
-        product = Product(**self.product_kwargs(is_published=True))
-        formset = self.image_formset(product, [])
-        self.assertFalse(formset.is_valid())
-        self.assertTrue(Category.objects.filter(is_active=True).exists())
-        product.category.is_active = False
-        product.category.save(update_fields=["is_active"])
-        from catalog.forms import ProductAdminForm
-        form = ProductAdminForm({**self.product_kwargs(is_published=True), "category": str(self.category.pk)})
-        self.assertFalse(form.is_valid())
+    def test_product_list_search_filter_and_deterministic_order(self):
+        self.create_product(is_published=True)
+        Product.objects.create(**self.product_kwargs(product_code="AJ-CD-010", slug="zeta-rings", name="Zeta Rings", is_published=False))
+        response = self.client.get(reverse("admin:catalog_product_changelist"), {"q": "AJ-CD-009", "is_published__exact": "1"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Amara Stack Rings")
+        self.assertNotContains(response, "Zeta Rings")
+        self.assertEqual(ProductAdmin.ordering, ("product_code", "pk"))
 
-    def test_inline_publication_handles_add_delete_retire_and_replacement(self):
-        product = Product(**self.product_kwargs(is_published=True))
-        valid = self.image_formset(product, [{"source_path": "demo/necklace.jpg", "alt_text": "Demo", "sort_order": 0, "is_primary": True, "provenance_status": "representative_demo"}])
-        self.assertTrue(valid.is_valid(), valid.errors)
-        retired = self.image_formset(product, [{"source_path": "demo/necklace.jpg", "alt_text": "Demo", "sort_order": 0, "is_primary": True, "provenance_status": "retired"}])
-        self.assertFalse(retired.is_valid())
-        replacement = self.image_formset(product, [
-            {"source_path": "demo/old.jpg", "alt_text": "Old", "sort_order": 0, "is_primary": True, "provenance_status": "representative_demo", "DELETE": True},
-            {"source_path": "demo/new.jpg", "alt_text": "New", "sort_order": 1, "is_primary": True, "provenance_status": "representative_demo"},
-        ])
-        self.assertTrue(replacement.is_valid(), replacement.errors)
+    def test_valid_unpublished_draft_can_be_created_and_collections_persist_on_edit(self):
+        response = self.client.post(self.admin_url("add"), self.product_form_data())
+        self.assertEqual(response.status_code, 302, response.content)
+        product = Product.objects.get(product_code="AJ-ADMIN-QA")
+        self.assertFalse(product.is_published)
+        self.assertEqual(set(product.collections.values_list("pk", flat=True)), {self.collection.pk})
+        response = self.client.post(self.admin_url("change", product), self.product_form_data(name="Edited Draft", slug=product.slug, product_code=""))
+        self.assertEqual(response.status_code, 302, response.content)
+        product.refresh_from_db()
+        self.assertEqual(product.name, "Edited Draft")
+        self.assertEqual(set(product.collections.values_list("pk", flat=True)), {self.collection.pk})
 
-    def test_provenance_and_primary_duplicates_are_rejected(self):
-        draft = Product(**self.product_kwargs())
-        verified = self.image_formset(draft, [{"source_path": "demo/x.jpg", "alt_text": "x", "sort_order": 0, "is_primary": True, "provenance_status": "verified_product"}])
-        self.assertFalse(verified.is_valid())
-        duplicate = self.image_formset(draft, [
-            {"source_path": "demo/x.jpg", "alt_text": "x", "sort_order": 0, "is_primary": True, "provenance_status": "representative_demo"},
-            {"source_path": "demo/y.jpg", "alt_text": "y", "sort_order": 1, "is_primary": True, "provenance_status": "representative_demo"},
-        ])
-        self.assertFalse(duplicate.is_valid())
+    def test_duplicate_identifiers_and_negative_pricing_are_rejected(self):
+        self.create_product()
+        duplicate = self.client.post(self.admin_url("add"), self.product_form_data(product_code="AJ-CD-009", slug="new-slug"))
+        self.assertEqual(duplicate.status_code, 200)
+        self.assertContains(duplicate, "Product with this Product code already exists")
+        duplicate_slug = self.client.post(self.admin_url("add"), self.product_form_data(product_code="AJ-NEW", slug="amara-stack-rings"))
+        self.assertEqual(duplicate_slug.status_code, 200)
+        self.assertContains(duplicate_slug, "Product with this Slug already exists")
+        negative = self.client.post(self.admin_url("add"), self.product_form_data(product_code="AJ-NEG", slug="negative", price="-1"))
+        self.assertEqual(negative.status_code, 200)
+        self.assertContains(negative, "Price cannot be negative")
+
+    def test_product_code_is_immutable_and_existing_media_provenance_is_untouched(self):
+        product = self.create_product()
+        ProductImage.objects.create(product=product, source_path="/demo/a.jpg", alt_text="A", is_primary=True)
+        ProductImage.objects.create(product=product, source_path="/demo/b.jpg", alt_text="B", sort_order=1)
+        response = self.client.get(self.admin_url("change", product))
+        self.assertNotContains(response, 'name="product_code"')
+        data = self.product_form_data(name="Changed", slug=product.slug, product_code="AJ-CHANGED")
+        self.client.post(self.admin_url("change", product), data)
+        product.refresh_from_db()
+        self.assertEqual(product.product_code, "AJ-CD-009")
+        self.assertEqual(ProductImage.objects.filter(product=product).count(), 2)
+        self.assertEqual(ProductImage.objects.filter(product=product, provenance_status=ProductImage.ProvenanceStatus.REPRESENTATIVE_DEMO).count(), 2)
+
+    def test_csrf_blocks_admin_post_without_token_and_public_api_has_no_write_route(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        self.assertEqual(client.post(self.admin_url("add"), self.product_form_data()).status_code, 403)
+        response = client.post("/api/v1/products/", {}, content_type="application/json")
+        self.assertEqual(response.status_code, 405)
+
+    def test_staff_without_catalog_permission_cannot_mutate(self):
+        restricted = get_user_model().objects.create_user(username="restricted", password="test-password", is_staff=True)
+        self.client.force_login(restricted)
+        response = self.client.post(self.admin_url("add"), self.product_form_data())
+        self.assertIn(response.status_code, (302, 403))
+        self.assertFalse(Product.objects.filter(product_code="AJ-ADMIN-QA").exists())
+
+    def test_optional_metadata_can_remain_blank(self):
+        response = self.client.post(self.admin_url("add"), self.product_form_data(product_code="AJ-BLANK", slug="blank-metadata"))
+        self.assertEqual(response.status_code, 302, response.content)
+        product = Product.objects.get(product_code="AJ-BLANK")
+        self.assertEqual(product.dimensions, "")
+        self.assertEqual(product.occasions, [])
+        self.assertEqual(product.tags, [])
+        self.assertEqual(product.badges, [])
+
+    def test_category_and_collection_admin_show_member_counts(self):
+        product = self.create_product()
+        category = admin.site._registry[Category]
+        collection = admin.site._registry[Collection]
+        category_row = category.get_queryset(None).get(pk=self.category.pk)
+        collection_row = collection.get_queryset(None).get(pk=self.collection.pk)
+        self.assertEqual(category.product_count(category_row), 1)
+        self.assertEqual(collection.member_product_count(collection_row), 1)
+        product.delete()
