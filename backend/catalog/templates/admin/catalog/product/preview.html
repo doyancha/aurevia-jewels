@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div id="content-main">
+  <h1>{{ product.name }}</h1>
+  <p><strong>Secure owner preview</strong> · Draft storefront visibility only</p>
+  <p>Code: {{ product.product_code }} · Category: {{ product.category.name }}</p>
+  <p>{{ product.short_description }}</p>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:20px;">
+    {% for item in media %}
+        <figure style="margin:0;max-width:180px;">
+          <img src="{{ item.url }}" alt="{{ item.image.alt_text }}" style="max-width:180px;max-height:180px;object-fit:cover;border-radius:6px;">
+          <figcaption>{{ item.image.alt_text }} · {{ item.image.get_provenance_status_display }}</figcaption>
+        </figure>
+    {% empty %}
+      <p>No product media has been added.</p>
+    {% endfor %}
+  </div>
+  <p style="margin-top:24px;"><a href="{% url 'admin:catalog_product_change' product.pk %}">Back to product</a></p>
+</div>
+{% endblock %}

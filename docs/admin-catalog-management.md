@@ -50,3 +50,33 @@ Verification and owner-approved real-product onboarding remain Phase 16 work.
 Category and Collection records remain manageable from their own admin pages.
 Collection legacy cover data is protected from casual editing so the
 deterministic cover behavior is preserved.
+
+## Taxonomy and publishing safety
+
+Category slugs are prepopulated when a category is created and are read-only
+after creation. Products use a protected category relationship, so a category
+with products must be reassigned before it can be deleted. Category results
+can be opened from the admin using the existing `/shop?category=<slug>` route.
+
+Collections expose their products through a validated membership selector.
+Saving the collection updates only the existing many-to-many memberships; it
+does not delete products. Collection slugs are stable after creation, and a
+collection with members must be cleared before deletion. Its cover remains a
+resolved member-product primary image; an empty collection safely reports
+"No cover available" and never emits an empty image URL.
+
+Publishing means eligible for storefront visibility, not verified inventory,
+commercial activation, or real photography. Drafts may be saved without
+media. Publishing requires valid identity, an active category, non-negative
+pricing, a supported availability value, required descriptions, and exactly
+one usable primary image with alt text. The same representative-demo images
+used by the concept catalog satisfy structural publication readiness; they do
+not become verified by being published.
+
+Unpublished products use an authenticated Django Admin secure draft preview.
+They are not exposed through the public API or a query-string preview bypass.
+Published products retain the stable `/products/<slug>` storefront link.
+There are no bulk publish/delete shortcuts. Media provenance remains read-only
+in normal admin workflows, and `verified_product` approval is deferred to a
+future owner-approved workflow. Phase 16 remains paused and Phase 17 has not
+started.

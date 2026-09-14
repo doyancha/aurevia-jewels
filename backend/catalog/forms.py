@@ -1,10 +1,12 @@
 from django import forms
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms.models import BaseInlineFormSet
 
 from .models import Category, Collection, Product, ProductImage
 from .media import validate_upload_file, upload_image, destroy_remote_asset
+from .publishing import get_publish_readiness_errors
 
 
 ADMIN_PROVENANCE_CHOICES = (
@@ -20,9 +22,22 @@ class CategoryAdminForm(forms.ModelForm):
 
 
 class CollectionAdminForm(forms.ModelForm):
+    products = forms.ModelMultipleChoiceField(
+        label="Products",
+        queryset=Product.objects.all(),
+        required=False,
+        widget=FilteredSelectMultiple("Products", is_stacked=False),
+        help_text="Select the products that belong to this collection.",
+    )
+
     class Meta:
         model = Collection
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields["products"].initial = self.instance.products.all()
 
 
 class ProductAdminForm(forms.ModelForm):
@@ -49,6 +64,9 @@ class ProductAdminForm(forms.ModelForm):
             self.add_error("compare_at_price", "Compare-at price must be greater than or equal to price.")
         if cleaned_data.get("is_published") and category and not category.is_active:
             self.add_error("category", "A published product must use an active category.")
+        if cleaned_data.get("is_published"):
+            for error in get_publish_readiness_errors(self.instance, overrides=cleaned_data):
+                self.add_error(None, error)
         return cleaned_data
 
 

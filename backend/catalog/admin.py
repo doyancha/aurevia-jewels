@@ -36,7 +36,11 @@ class CategoryAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     list_filter = ("is_active",)
     search_fields = ("name", "slug", "description")
     ordering = ("display_order", "name", "pk")
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at", "product_count", "storefront_link")
+    fieldsets = (
+        ("Category", {"fields": ("name", "slug", "description", "is_active", "display_order", "storefront_link", "product_count")}),
+        ("System", {"fields": ("created_at", "updated_at")}),
+    )
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_product_count=Count("products"))
@@ -45,22 +49,111 @@ class CategoryAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     def product_count(self, obj):
         return obj._product_count
 
+    @admin.display(description="Storefront")
+    def storefront_link(self, obj):
+        if not obj or not obj.pk:
+            return "Save the category to view it."
+        return format_html('<a href="/shop?category={}" target="_blank" rel="noopener">View category results</a>', obj.slug)
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def delete_view(self, request, object_id, extra_context=None):
+        obj = get_object_or_404(self.get_queryset(request), pk=object_id)
+        if request.method == "POST" and obj.products.exists():
+            self.message_user(request, "Reassign or remove the category's products before deleting this category.", messages.ERROR)
+            return HttpResponseRedirect(reverse("admin:catalog_category_change", args=[obj.pk]))
+        return super().delete_view(request, object_id, extra_context)
+
 
 @admin.register(Collection)
 class CollectionAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     form = CollectionAdminForm
-    list_display = ("name", "slug", "member_product_count", "is_active", "display_order", "updated_at")
+    list_display = ("name", "slug", "member_product_count", "cover_status", "is_active", "display_order", "updated_at")
     list_filter = ("is_active",)
     search_fields = ("name", "slug", "description")
     ordering = ("display_order", "name", "pk")
-    readonly_fields = ("legacy_image_path", "created_at", "updated_at")
+    readonly_fields = ("legacy_image_path", "resolved_cover", "resolved_cover_source", "storefront_link", "member_product_count", "created_at", "updated_at")
+    fieldsets = (
+        ("Collection", {"fields": ("name", "slug", "description", "is_active", "display_order", "products", "storefront_link")}),
+        ("Resolved cover", {"fields": ("resolved_cover", "resolved_cover_source", "legacy_image_path"), "description": "The cover remains derived from the established member-product primary image. Empty collections show no cover."}),
+        ("System", {"fields": ("member_product_count", "created_at", "updated_at")}),
+    )
 
     def get_queryset(self, request):
-        return super().get_queryset(request).annotate(_member_product_count=Count("products", distinct=True))
+        return super().get_queryset(request).annotate(
+            _member_product_count=Count("products", distinct=True),
+            _cover_image_count=Count(
+                "products__images",
+                filter=Q(products__images__is_primary=True)
+                & ~Q(products__images__provenance_status=ProductImage.ProvenanceStatus.RETIRED)
+                & (Q(products__images__source_path__startswith="/") | Q(products__images__secure_url__startswith="http://") | Q(products__images__secure_url__startswith="https://")),
+                distinct=True,
+            ),
+        )
 
     @admin.display(description="Products", ordering="_member_product_count")
     def member_product_count(self, obj):
         return obj._member_product_count
+
+    def _cover_image(self, obj):
+        path = (obj.legacy_image_path or "").strip()
+        images = ProductImage.objects.filter(
+            product__collections=obj,
+            is_primary=True,
+        ).exclude(provenance_status=ProductImage.ProvenanceStatus.RETIRED).filter(
+            Q(source_path__startswith="/") | Q(secure_url__startswith="http://") | Q(secure_url__startswith="https://")
+        ).select_related("product")
+        if path:
+            image = images.filter(source_path=path).first()
+            if image:
+                return image
+        return images.order_by("product__display_order", "product__name", "product__pk", "pk").first()
+
+    @admin.display(description="Cover")
+    def cover_status(self, obj):
+        return "Resolved" if obj._cover_image_count else "No cover available"
+
+    @admin.display(description="Resolved cover")
+    def resolved_cover(self, obj):
+        image = self._cover_image(obj)
+        if not image:
+            return "No cover available"
+        source = image.secure_url or image.source_path
+        if not source.startswith(("http://", "https://", "/")):
+            return "No cover available"
+        if source.startswith("/catalog/"):
+            source = urljoin(getattr(settings, "ADMIN_STOREFRONT_BASE_URL", ""), source)
+        return format_html('<img src="{}" alt="{}" style="max-width:120px;max-height:120px;object-fit:cover;border-radius:4px;" />', source, image.alt_text)
+
+    @admin.display(description="Source product")
+    def resolved_cover_source(self, obj):
+        image = self._cover_image(obj)
+        return image.product if image else "No cover available"
+
+    @admin.display(description="Storefront")
+    def storefront_link(self, obj):
+        if not obj or not obj.pk:
+            return "Save the collection to view it."
+        return format_html('<a href="/collections/{}" target="_blank" rel="noopener">View collection</a>', obj.slug)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        form.instance.products.set(form.cleaned_data.get("products", []))
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def delete_view(self, request, object_id, extra_context=None):
+        obj = get_object_or_404(self.get_queryset(request), pk=object_id)
+        if request.method == "POST" and obj.products.exists():
+            self.message_user(request, "Remove this collection's product memberships before deleting the collection. Products will never be deleted by collection management.", messages.ERROR)
+            return HttpResponseRedirect(reverse("admin:catalog_collection_change", args=[obj.pk]))
+        return super().delete_view(request, object_id, extra_context)
 
 
 class ProductImageInline(admin.TabularInline):
@@ -120,6 +213,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
         "product_code", "name", "category", "price", "currency_code",
         "availability_status", "is_published", "is_featured", "is_new_arrival",
         "is_best_seller", "image_count", "collection_count", "media_provenance", "updated_at",
+        "publication_readiness",
     )
     list_filter = (
         "is_published", "category", "availability_status", "is_featured",
@@ -153,10 +247,15 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
             _collection_count=Count("collections", distinct=True),
             _demo_image_count=Count("images", filter=Q(images__provenance_status=ProductImage.ProvenanceStatus.REPRESENTATIVE_DEMO), distinct=True),
             _verified_image_count=Count("images", filter=Q(images__provenance_status=ProductImage.ProvenanceStatus.VERIFIED_PRODUCT), distinct=True),
+            _primary_image_count=Count("images", filter=Q(images__is_primary=True), distinct=True),
+            _usable_primary_count=Count("images", filter=Q(
+                images__is_primary=True,
+            ) & ~Q(images__provenance_status=ProductImage.ProvenanceStatus.RETIRED) & (Q(images__source_path__startswith="/") | Q(images__secure_url__startswith="http://") | Q(images__secure_url__startswith="https://")), distinct=True),
         )
 
     def get_urls(self):
         custom = [
+            path("<int:product_id>/preview/", self.admin_site.admin_view(self.product_preview), name="catalog_product_preview"),
             path("<int:product_id>/media/add/", self.admin_site.admin_view(self.media_add), name="catalog_product_media_add"),
             path("<int:product_id>/media/<int:image_id>/replace/", self.admin_site.admin_view(self.media_replace), name="catalog_product_media_replace"),
             path("<int:product_id>/media/<int:image_id>/remove/", self.admin_site.admin_view(self.media_remove), name="catalog_product_media_remove"),
@@ -165,6 +264,27 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
             path("<int:product_id>/media/reorder/", self.admin_site.admin_view(self.media_reorder), name="catalog_product_media_reorder"),
         ]
         return custom + super().get_urls()
+
+    def product_preview(self, request, product_id):
+        if not request.user.has_perm("catalog.view_product"):
+            return HttpResponseForbidden()
+        product = get_object_or_404(
+            Product.objects.select_related("category").prefetch_related("collections", "images"),
+            pk=product_id,
+        )
+        media = []
+        for image in product.images.all():
+            source = image.secure_url or image.source_path
+            if source.startswith("/catalog/"):
+                source = urljoin(getattr(settings, "ADMIN_STOREFRONT_BASE_URL", ""), source)
+            if source.startswith(("http://", "https://", "/")):
+                media.append({"image": image, "url": source})
+        return TemplateResponse(request, "admin/catalog/product/preview.html", {
+            **self.admin_site.each_context(request),
+            "title": f"Preview {product.name}",
+            "product": product,
+            "media": media,
+        })
 
     def _media_allowed(self, request, codename):
         return request.user.is_active and request.user.is_staff and request.user.has_perm(f"catalog.{codename}")
@@ -340,6 +460,16 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
             return "Representative Demo"
         return "No media"
 
+    @admin.display(description="Publish readiness", ordering="_usable_primary_count")
+    def publication_readiness(self, obj):
+        if not obj.category or not obj.category.is_active:
+            return "Missing category"
+        if not obj._image_count:
+            return "Missing image"
+        if obj._primary_image_count != 1 or obj._usable_primary_count != 1:
+            return "Primary image issue"
+        return "Ready"
+
     @admin.display(description="Media summary")
     def media_summary(self, obj):
         if not obj or not obj.pk:
@@ -364,8 +494,18 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     def storefront_preview(self, obj):
         if not obj or not obj.pk:
             return "Save the product to preview it."
-        url = f"/products/{obj.slug}"
-        return format_html('<a href="{}" target="_blank" rel="noopener">View / Preview storefront product</a>', url)
+        if obj.is_published:
+            url = f"/products/{obj.slug}"
+            label = "View storefront product"
+        else:
+            url = reverse("admin:catalog_product_preview", args=[obj.pk])
+            label = "Open secure draft preview"
+        return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>', url, label)
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
 
 
 admin.site.site_header = "Aurevia Jewels Admin"
