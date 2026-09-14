@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 
 const root = new URL('../data/catalog/concept-demo/', import.meta.url);
 const parseCsv = (text) => {
@@ -49,10 +50,32 @@ for (const product of products) {
   for (const field of ['name','short_description','description','long_description','material','color','finish','dimensions','occasions','tags','seo_title','seo_description']) assert.ok(product[field].trim(), `${product.product_code} ${field}`);
 }
 unique('product_code', images); assert.equal(images.length, products.length);
-for (const image of images) { assert.ok(products.some((product) => product.product_code === image.product_code)); assert.equal(image.intended_image_count, '3'); assert.equal(image.image_provenance, 'representative_demo'); }
+const imageFiles = [];
+for (const image of images) {
+  assert.ok(products.some((product) => product.product_code === image.product_code)); assert.equal(image.intended_image_count, '3'); assert.equal(image.image_provenance, 'representative_demo');
+  const candidates = [[image.primary_image, 0, true], ...(image.secondary_images ? image.secondary_images.split('|').filter(Boolean).map((name, index) => [name, index + 1, false]) : [])];
+  for (const [filename, sortOrder, primary] of candidates) {
+    assert.equal(filename, filename.trim()); assert.ok(!filename.includes('/') && !filename.includes('\\') && !filename.includes('..'), `unsafe image path ${filename}`);
+    const path = new URL(`images/${image.product_code}/${filename}`, root);
+    try {
+      const bytes = await readFile(path);
+      imageFiles.push({ product_code: image.product_code, filename, sortOrder, primary, path: path.href, hash: createHash('sha256').update(bytes).digest('hex') });
+    } catch (error) {
+      if (primary) throw error;
+    }
+  }
+}
+assert.equal(imageFiles.filter((image) => image.primary).length, products.length);
+assert.equal(new Set(imageFiles.map((image) => image.path)).size, imageFiles.length, 'duplicate image path');
+assert.equal(new Set(imageFiles.map((image) => image.hash)).size, imageFiles.length, 'duplicate image hash');
+for (const product of products) {
+  const productImages = imageFiles.filter((image) => image.product_code === product.product_code);
+  assert.equal(productImages.filter((image) => image.primary).length, 1);
+  assert.equal(new Set(productImages.map((image) => image.sortOrder)).size, productImages.length);
+}
 assert.ok(products.filter((row) => row.featured === 'true').length >= 6);
 assert.ok(products.filter((row) => row.best_seller === 'true').length >= 6);
 assert.ok(products.filter((row) => row.new_arrival === 'true').length >= 6);
 assert.ok(products.every((row) => row.published === 'false'));
 console.log('Concept catalog structural validation: PASS');
-console.log(`Categories: ${categories.length}`); console.log(`Collections: ${collections.length}`); console.log(`Products: ${products.length}`); console.log('Image provenance: representative_demo for 24 planned products');
+console.log(`Categories: ${categories.length}`); console.log(`Collections: ${collections.length}`); console.log(`Products: ${products.length}`); console.log(`Primary images: ${imageFiles.filter((image) => image.primary).length}`); console.log(`Secondary images: ${imageFiles.filter((image) => !image.primary).length}`); console.log(`Total concept image files: ${imageFiles.length}`); console.log('Image provenance: representative_demo for all declared image files');

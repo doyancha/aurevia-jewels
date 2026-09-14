@@ -1,8 +1,8 @@
 product_code,intended_image_count,primary_image,secondary_images,suggested_shot_types,image_provenance
-AJ-CD-001,3,01.png,02-styled-neckline.jpg|03-detail-pearl.jpg,front product shot|styled close-up|detail shot,representative_demo
-AJ-CD-002,3,01.png,02-layered-neckline.jpg|03-clasp-detail.jpg,front product shot|styled close-up|detail shot,representative_demo
-AJ-CD-003,3,01.png,02-hand-styled.jpg|03-halo-detail.jpg,front product shot|styled close-up|detail shot,representative_demo
-AJ-CD-004,3,01.png,02-worn-profile.jpg|03-curve-detail.jpg,front product shot|styled close-up|detail shot,representative_demo
+AJ-CD-001,3,01.png,02.png|03.png,front product shot|styled close-up|detail shot,representative_demo
+AJ-CD-002,3,01.png,02.png|03.png,front product shot|styled close-up|detail shot,representative_demo
+AJ-CD-003,3,01.png,02.png|03.png,front product shot|styled close-up|detail shot,representative_demo
+AJ-CD-004,3,01.png,02.png|03.png,front product shot|styled close-up|detail shot,representative_demo
 AJ-CD-005,3,01.png,02-worn-angle.jpg|03-threader-detail.jpg,front product shot|alternate angle|detail shot,representative_demo
 AJ-CD-006,3,01.png,02-worn-ear.jpg|03-pearl-detail.jpg,front product shot|styled close-up|detail shot,representative_demo
 AJ-CD-007,3,01.png,02-wrist-styled.jpg|03-link-detail.jpg,front product shot|styled close-up|detail shot,representative_demo

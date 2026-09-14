@@ -107,39 +107,43 @@ def load_concept(root: Path) -> dict:
 
 
 def reconcile_concept(data: dict, *, dry_run: bool) -> dict[str, int]:
-    """Replace only catalog rows. Existing Cloudinary IDs are cleared before deletion."""
+    """Reconcile only catalog rows without touching remote media."""
     if dry_run:
         return {"categories": 8, "collections": 8, "products": 24, "images": len(data["images"])}
     with transaction.atomic():
-        # Prevent the existing delete signal from attempting Cloudinary cleanup.
-        ProductImage.objects.exclude(cloudinary_public_id="").update(cloudinary_public_id="", secure_url="")
-        Product.objects.all().delete()
-        Category.objects.all().delete()
-        Collection.objects.all().delete()
         category_map = {}
         for index, row in enumerate(data["categories"]):
-            category_map[row["slug"]] = Category.objects.create(name=row["name"], slug=row["slug"], description=row["description"], display_order=index)
+            category, _ = Category.objects.get_or_create(slug=row["slug"], defaults={"name": row["name"], "description": row["description"], "display_order": index})
+            category.name = row["name"]; category.description = row["description"]; category.display_order = index; category.is_active = True
+            category.save(update_fields=["name", "description", "display_order", "is_active", "updated_at"])
+            category_map[row["slug"]] = category
         collection_map = {}
         for index, row in enumerate(data["collections"]):
-            collection_map[row["slug"]] = Collection.objects.create(name=row["name"], slug=row["slug"], description=row["description"], display_order=index)
+            collection, _ = Collection.objects.get_or_create(slug=row["slug"], defaults={"name": row["name"], "description": row["description"], "display_order": index})
+            collection.name = row["name"]; collection.description = row["description"]; collection.display_order = index; collection.is_active = True
+            collection.save(update_fields=["name", "description", "display_order", "is_active", "updated_at"])
+            collection_map[row["slug"]] = collection
         image_map = {}
         for image in data["images"]:
             image_map.setdefault(image["code"], []).append(image)
         for index, row in enumerate(data["products"]):
-            product = Product.objects.create(
-                legacy_key=row["product_code"], name=row["name"], slug=row["slug"], product_code=row["product_code"],
-                category=category_map[row["category"]], price=Decimal(row["price"]), compare_at_price=Decimal(row["compare_at_price"]),
-                currency_code=row["currency_code"], short_description=row["short_description"], description=row["description"],
-                long_description=row["long_description"], material=row["material"], color=row["color"], finish=row["finish"],
-                dimensions=row["dimensions"], occasions=row["occasions"].split("|"), tags=row["tags"].split("|"), badges=[row["badges"]],
-                availability_status=row["availability"], is_published=True, is_featured=_bool(row["featured"]),
-                is_new_arrival=_bool(row["new_arrival"]), is_best_seller=_bool(row["best_seller"]), display_order=index,
-                seo_title=row["seo_title"], seo_description=row["seo_description"],
-            )
+            values = dict(legacy_key=row["product_code"], name=row["name"], slug=row["slug"], product_code=row["product_code"], category=category_map[row["category"]], price=Decimal(row["price"]), compare_at_price=Decimal(row["compare_at_price"]), currency_code=row["currency_code"], short_description=row["short_description"], description=row["description"], long_description=row["long_description"], material=row["material"], color=row["color"], finish=row["finish"], dimensions=row["dimensions"], occasions=row["occasions"].split("|"), tags=row["tags"].split("|"), badges=[row["badges"]], availability_status=row["availability"], is_published=True, is_featured=_bool(row["featured"]), is_new_arrival=_bool(row["new_arrival"]), is_best_seller=_bool(row["best_seller"]), display_order=index, seo_title=row["seo_title"], seo_description=row["seo_description"])
+            product, _ = Product.objects.get_or_create(product_code=row["product_code"], defaults=values)
+            for field, value in values.items():
+                setattr(product, field, value)
+            product.save()
             product.collections.set([collection_map[slug] for slug in row["collections"].split("|")])
+            desired_orders = {image["sort_order"] for image in image_map[row["product_code"]]}
+            stale = product.images.exclude(sort_order__in=desired_orders)
+            stale.exclude(cloudinary_public_id="").update(cloudinary_public_id="", secure_url="")
+            stale.delete()
             for image in sorted(image_map[row["product_code"]], key=lambda item: item["sort_order"]):
                 filename = image["path"].name
-                ProductImage.objects.create(product=product, source_path=f"/catalog/concept-demo/{row['product_code']}/{filename}", alt_text=f"{row['name']} concept product image" if image["is_primary"] else f"{row['name']} concept product detail image {image['sort_order'] + 1}", sort_order=image["sort_order"], is_primary=image["is_primary"], width=image["width"], height=image["height"], provenance_status=ProductImage.ProvenanceStatus.REPRESENTATIVE_DEMO)
+                alt_text = f"{row['name']} concept product image" if image["is_primary"] else f"{row['name']} concept product image, {'alternate view' if image['sort_order'] == 1 else 'detail view'}"
+                ProductImage.objects.update_or_create(product=product, sort_order=image["sort_order"], defaults={"source_path": f"/catalog/concept-demo/{row['product_code']}/{filename}", "alt_text": alt_text, "is_primary": image["is_primary"], "width": image["width"], "height": image["height"], "provenance_status": ProductImage.ProvenanceStatus.REPRESENTATIVE_DEMO, "cloudinary_public_id": "", "secure_url": ""})
+        Product.objects.exclude(product_code__in=[row["product_code"] for row in data["products"]]).delete()
+        Category.objects.exclude(slug__in=category_map).delete()
+        Collection.objects.exclude(slug__in=collection_map).delete()
         for collection in collection_map.values():
             member = Product.objects.filter(collections=collection).order_by("display_order", "pk").first()
             if member:
