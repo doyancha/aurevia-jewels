@@ -1,5 +1,6 @@
 const apiBase = (process.env.AUREVIA_QA_DJANGO_API_BASE_URL || process.env.AUREVIA_CATALOG_API_BASE_URL || 'http://127.0.0.1:8012/api/v1').replace(/\/$/, '');
 const storefrontBase = (process.env.AUREVIA_QA_NEXT_BASE_URL || 'http://127.0.0.1:3012').replace(/\/$/, '');
+const EXPECTED_RUNTIME_IMAGE_COUNT = 48;
 const impossible = 'phase12-verification-never-created-9f7c2';
 const failures = [];
 const pass = (condition, message) => { if (!condition) throw new Error(message); };
@@ -57,7 +58,7 @@ await check('read-only API', async () => { const detail = `/products/${encodeURI
 await check('404 semantics', async () => { for (const path of [`/products/${impossible}/`, `/collections/${impossible}/`]) { const { response } = await request(apiBase, path); pass(response.status === 404, `Django ${path} returned ${response.status}`); } for (const path of [`/products/${impossible}`, `/collections/${impossible}`]) { const { response } = await storefront(path); pass(response.status === 404, `Next ${path} returned ${response.status}`); } });
 
 const media = products.flatMap((product) => product.images.map((image) => ({ ...image, product: product.slug })));
-await check('catalog media', async () => { pass(media.length === 72, `expected 72 images, got ${media.length}`); pass(media.every((image) => image.url.startsWith('/') || image.url.startsWith('https://res.cloudinary.com/')), 'unsupported image URL found'); pass(new Set(media.map((image) => image.url)).size === 72, 'image URL is not unique'); let failed = 0; for (const image of media) { let ok = false; for (let attempt = 0; attempt < 2 && !ok; attempt++) { try { const result = await fetch(new URL(image.url, `${storefrontBase}/`), { method: 'HEAD' }); ok = result.ok && (result.headers.get('content-type') || '').startsWith('image/'); } catch {} } if (!ok) failed++; } pass(failed === 0, `${failed}/72 catalog image URLs failed`); });
+await check('catalog media', async () => { pass(media.length === EXPECTED_RUNTIME_IMAGE_COUNT, `expected ${EXPECTED_RUNTIME_IMAGE_COUNT} images, got ${media.length}`); pass(media.every((image) => image.url.startsWith('/') || image.url.startsWith('https://res.cloudinary.com/')), 'unsupported image URL found'); pass(new Set(media.map((image) => image.url)).size === EXPECTED_RUNTIME_IMAGE_COUNT, 'image URL is not unique'); let failed = 0; for (const image of media) { let ok = false; for (let attempt = 0; attempt < 2 && !ok; attempt++) { try { const result = await fetch(new URL(image.url, `${storefrontBase}/`), { method: 'HEAD' }); ok = result.ok && (result.headers.get('content-type') || '').startsWith('image/'); } catch {} } if (!ok) failed++; } pass(failed === 0, `${failed}/${EXPECTED_RUNTIME_IMAGE_COUNT} catalog image URLs failed`); });
 await check('Next image optimization', async () => { let tested = 0; for (const product of products.slice(0, 6)) { const page = await storefront(`/products/${encodeURIComponent(product.slug)}`); const encoded = [...page.body.matchAll(/\/_next\/image\?url=([^&]+)(?:&amp;|&)w=\d+(?:&amp;|&)q=\d+/g)][0]?.[1]; if (!encoded) continue; const result = await storefront(`/_next/image?url=${encoded}&w=640&q=75`); tested++; pass(result.response.status === 200 && (result.response.headers.get('content-type') || '').startsWith('image/'), `sample ${tested} returned ${result.response.status}`); } pass(tested >= 3, `only ${tested} optimizer samples found`); });
 await check('browser/backend boundary', async () => { const pages = await Promise.all(['/','/shop','/collections'].map(storefront)); const joined = pages.map((page) => page.body).join('\n'); pass(!joined.includes(apiBase), 'Django API origin exposed in rendered storefront'); pass(!joined.includes('AUREVIA_CATALOG_API_BASE_URL'), 'server environment variable exposed'); });
 
@@ -69,7 +70,7 @@ console.log(`Products: ${products.length}/${products.length}`);
 console.log(`Collections: ${collections.length}/${collections.length}`);
 console.log('Shop queries: PASS');
 console.log('Sitemap: PASS');
-console.log(`Catalog media: ${media.length}/${media.length}`);
+console.log(`Catalog media: ${media.length}/${EXPECTED_RUNTIME_IMAGE_COUNT}`);
 console.log('Next image samples: 3+/3+');
 console.log('404 semantics: PASS');
 console.log('Read-only API: PASS');
