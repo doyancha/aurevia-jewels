@@ -192,6 +192,26 @@ class CatalogAdminTests(TestCase):
         self.assertNotContains(response, "Add Collection")
         self.assertNotContains(response, "Add Category")
 
+    def test_admin_wide_readability_assets_and_standard_pages_render(self):
+        self.client.logout()
+        login = self.client.get(reverse("admin:login"))
+        self.assertContains(login, "admin/aurevia/admin.css")
+        self.client.force_login(self.user)
+        dashboard = self.client.get(reverse("admin:index"))
+        self.assertContains(dashboard, "admin/aurevia/admin.css")
+        for url_name in (
+            "admin:catalog_product_changelist",
+            "admin:catalog_product_add",
+            "admin:catalog_category_changelist",
+            "admin:catalog_category_add",
+            "admin:catalog_collection_changelist",
+            "admin:catalog_collection_add",
+        ):
+            response = self.client.get(reverse(url_name))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "admin/aurevia/admin.css")
+        self.assertContains(dashboard, "Catalog management")
+
     def test_catalog_health_dashboard_is_read_only_and_permission_gated(self):
         response = self.client.get(reverse("admin:index"))
         self.assertEqual(response.status_code, 200)

@@ -24,3 +24,83 @@ body { background: var(--aurevia-bg); color: var(--aurevia-text); font-family: I
 .aurevia-thumb { border-radius: 6px; height: 42px; object-fit: cover; vertical-align: middle; width: 42px; }.aurevia-thumb--empty { align-items: center; background: var(--aurevia-soft); color: var(--aurevia-muted); display: inline-flex; justify-content: center; }
 .aurevia-login #container { background: radial-gradient(circle at 15% 10%,#3b3934,#242321 55%,#181817); min-height: 100vh; }.aurevia-login #header { background: transparent; border: 0; padding: 26px 30px; }.aurevia-login #content { margin: 0 auto; max-width: none; }.aurevia-login-shell { align-items: center; display: flex; justify-content: center; min-height: calc(100vh - 100px); padding: 20px; }.aurevia-login-card { background: var(--aurevia-surface); border: 1px solid #d5c9b7; border-radius: var(--aurevia-radius-lg); box-shadow: 0 20px 60px rgba(0,0,0,.24); max-width: 440px; padding: 38px; width: 100%; }.aurevia-login-intro h1 { font-size: 31px; margin: 8px 0; }.aurevia-login-intro p:last-child { color: var(--aurevia-muted); font-size: 13px; margin-bottom: 28px; }.aurevia-login .form-row { margin-bottom: 17px; }.aurevia-login .form-row label { color: var(--aurevia-text); display: block; font-size: 12px; font-weight: 700; margin-bottom: 7px; }.aurevia-login .form-row input { box-sizing: border-box; padding: 11px 12px; width: 100%; }.aurevia-login .submit-row { background: transparent; border: 0; padding: 10px 0 0; }.aurevia-login .submit-row input { cursor: pointer; width: 100%; }.aurevia-login-footnote { color: var(--aurevia-muted); font-size: 10px; letter-spacing: .04em; margin: 25px 0 0; text-align: center; }.aurevia-login .errornote { border-radius: var(--aurevia-radius-sm); margin: 0 0 16px; }
 @media (max-width: 1000px) { .aurevia-metric-grid { grid-template-columns: repeat(3,1fr); }.aurevia-dashboard-grid { grid-template-columns: 1fr; } }@media (max-width: 700px) { #header { padding: 13px 15px; }.aurevia-user-tools { gap: 9px; }.aurevia-welcome { display: none; }.aurevia-dashboard-hero { align-items: flex-start; flex-direction: column; gap: 18px; }.aurevia-dashboard-hero h1 { font-size: 32px; }.aurevia-metric-grid { grid-template-columns: repeat(2,1fr); }.aurevia-panel { padding: 16px; }.aurevia-health-row { align-items: flex-start; flex-wrap: wrap; }.aurevia-health-row .aurevia-badge { margin-left: 18px; }.aurevia-management-links a { gap: 8px; grid-template-columns: 1fr auto; }.aurevia-management-links span { display: none; }.aurevia-activity-row { flex-direction: column; gap: 4px; }.aurevia-login-card { padding: 25px; } }@media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto!important; transition-duration: .01ms!important; } }
+/* Global Django Admin readability contract: explicit foregrounds for mixed surfaces. */
+:root {
+  --aurevia-text-on-dark: #f7f2e9; --aurevia-text-on-dark-muted: #c8c0b4;
+  --aurevia-text-on-light: #25231f; --aurevia-text-on-light-muted: #625d55;
+  --aurevia-link-on-dark: #e4c18b; --aurevia-link-on-light: #805d2e;
+  --aurevia-border-dark: #49453f; --aurevia-border-light: #ded9d0;
+  --aurevia-field-bg: #ffffff; --aurevia-field-text: #25231f;
+  --aurevia-table-bg: #fffdfa; --aurevia-table-row-alt: #faf7f1; --aurevia-table-text: #25231f;
+  --aurevia-filter-bg: #2b2a27; --aurevia-filter-text: #eee7dc;
+  --aurevia-surface-dark-hover: #3b3833; --aurevia-table-head: #f1eee9; --aurevia-table-selected: #f1eadf;
+  --aurevia-field-border: #bdb5aa; --aurevia-field-disabled-bg: #ece8e1; --aurevia-readonly-bg: #f3f0eb;
+  --aurevia-danger-hover: #8f3d38; --aurevia-error-bg: #f5e2df; --aurevia-error-text: #7e2d29; --aurevia-error-border: #d7a7a1;
+}
+
+body {
+  --body-fg: var(--aurevia-text-on-light); --body-bg: var(--aurevia-bg);
+  --body-quiet-color: var(--aurevia-text-on-light-muted); --body-medium-color: var(--aurevia-text-on-light);
+  --body-loud-color: var(--aurevia-text-on-light); --header-color: var(--aurevia-text-on-dark);
+  --header-branding-color: var(--aurevia-text-on-dark); --header-link-color: var(--aurevia-link-on-dark);
+  --breadcrumbs-fg: var(--aurevia-text-on-light-muted); --breadcrumbs-link-fg: var(--aurevia-link-on-light);
+  --breadcrumbs-bg: transparent; --link-fg: var(--aurevia-link-on-light); --link-hover-color: var(--aurevia-gold-hover);
+  --link-selected-fg: var(--aurevia-link-on-light); --hairline-color: var(--aurevia-border-light);
+  --border-color: #cfc8bd; --darkened-bg: var(--aurevia-soft); --selected-bg: #f1eadf; --selected-row: #f1eadf;
+  --button-fg: var(--aurevia-text-on-dark); --button-bg: var(--aurevia-gold); --button-hover-bg: var(--aurevia-gold-hover);
+  --default-button-bg: var(--aurevia-gold); --default-button-hover-bg: var(--aurevia-gold-hover);
+  --delete-button-bg: var(--aurevia-danger); --delete-button-hover-bg: var(--aurevia-danger-hover);
+  --object-tools-fg: var(--aurevia-text-on-dark); --object-tools-bg: #6e675e; --object-tools-hover-bg: #514c45;
+}
+
+body, #container, #content, #content-main, .module, #changelist, #result_list, .inline-group,
+.inline-related, .delete-confirmation, h1, h2, h3, h4, h5, p, li, dt, dd, .form-row,
+.aligned label, legend, label { color: var(--aurevia-text-on-light); }
+.quiet, .help, .helptext, p.help, .description, .paginator, #changelist table tfoot,
+.small, .datetime, .inline-related .delete { color: var(--aurevia-text-on-light-muted); }
+
+#header, #branding, #branding a, #header #user-tools, #header #user-tools a, #header #user-tools button { color: var(--aurevia-text-on-dark); }
+#header #user-tools a, #header #user-tools button, #nav-sidebar a, #nav-sidebar th { color: var(--aurevia-link-on-dark); }
+#nav-sidebar { background: var(--aurevia-filter-bg); border-right-color: var(--aurevia-border-dark); color: var(--aurevia-filter-text); }
+#nav-sidebar a:hover, #nav-sidebar a:focus, #nav-sidebar .current-model a { background: var(--aurevia-surface-dark-hover); color: var(--aurevia-text-on-dark); }
+.breadcrumbs { background: transparent; color: var(--aurevia-text-on-light-muted); }
+.breadcrumbs a, .breadcrumbs a:link, .breadcrumbs a:visited { color: var(--aurevia-link-on-light); }
+
+#changelist table, #result_list { background: var(--aurevia-table-bg); color: var(--aurevia-table-text); }
+#changelist table thead th, #changelist table thead th a, #result_list thead th, #result_list thead th a { background: var(--aurevia-table-head); color: var(--aurevia-text-on-light); font-weight: 700; }
+#changelist table tbody th, #changelist table tbody td, #result_list tbody th, #result_list tbody td { background: var(--aurevia-table-bg); color: var(--aurevia-table-text); border-bottom-color: var(--aurevia-border-light); }
+#changelist table tbody tr:nth-child(even) th, #changelist table tbody tr:nth-child(even) td, #result_list tbody tr:nth-child(even) th, #result_list tbody tr:nth-child(even) td { background: var(--aurevia-table-row-alt); }
+#changelist table tbody tr:hover th, #changelist table tbody tr:hover td, #result_list tbody tr:hover th, #result_list tbody tr:hover td, #result_list tbody tr.selected th, #result_list tbody tr.selected td { background: var(--aurevia-table-selected); color: var(--aurevia-text-on-light); }
+#changelist table tbody th a, #changelist table tbody td a, #result_list tbody th a, #result_list tbody td a { color: var(--aurevia-link-on-light); }
+
+#toolbar, #changelist-filter { background: var(--aurevia-filter-bg); color: var(--aurevia-filter-text); border-color: var(--aurevia-border-dark); }
+#toolbar label, #toolbar .help, #changelist-filter h2, #changelist-filter h3, #changelist-filter summary, #changelist-filter li, #changelist-filter p, #changelist-filter .count { color: var(--aurevia-filter-text); }
+#changelist-filter a, #changelist-filter a:link, #changelist-filter a:visited { color: var(--aurevia-link-on-dark); }
+#changelist-filter a:hover, #changelist-filter a:focus, #changelist-filter li.selected a { color: var(--aurevia-text-on-dark); text-decoration: underline; }
+
+#toolbar input, #toolbar select, #changelist-filter select, input[type="text"], input[type="number"], input[type="url"], input[type="email"], input[type="password"], input[type="date"], input[type="time"], textarea, select { background: var(--aurevia-field-bg); color: var(--aurevia-field-text); border-color: var(--aurevia-field-border); }
+input::placeholder, textarea::placeholder { color: #6f675e; opacity: 1; }
+input:disabled, select:disabled, textarea:disabled, input[readonly], textarea[readonly] { background: var(--aurevia-field-disabled-bg); color: var(--aurevia-text-on-light-muted); opacity: 1; }
+input:focus, select:focus, textarea:focus, #toolbar input:focus, #changelist-filter select:focus { border-color: var(--aurevia-gold-hover); box-shadow: 0 0 0 2px rgba(162,120,60,.22); outline: 3px solid rgba(162,120,60,.34); outline-offset: 1px; }
+
+.form-row, .aligned .form-row, .fieldset, .inline-group, .inline-related, .submit-row { border-color: var(--aurevia-border-light); }
+fieldset.module h2, .module h2, .module caption, .inline-group h2, fieldset .fieldset-heading, fieldset .inline-heading, :not(.inline-related) .collapse summary { background: var(--aurevia-soft); color: var(--aurevia-text-on-light); border-color: var(--aurevia-border-light); }
+.readonly { background: var(--aurevia-readonly-bg); color: var(--aurevia-text-on-light); border-radius: var(--aurevia-radius-sm); padding: 6px 8px; }
+ul.errorlist, .errorlist, .errornote { background: var(--aurevia-error-bg); color: var(--aurevia-error-text); border-color: var(--aurevia-error-border); }
+ul.errorlist li, .errorlist li, .errornote a { color: var(--aurevia-error-text); }
+.object-tools a, .object-tools a:link, .object-tools a:visited { background: var(--aurevia-gold); color: var(--aurevia-text-on-dark); }
+.object-tools a:hover, .object-tools a:focus { background: var(--aurevia-gold-hover); color: var(--aurevia-text-on-dark); }
+.submit-row { background: var(--aurevia-soft); color: var(--aurevia-text-on-light); }
+.submit-row input, .submit-row a, .submit-row a:link, .submit-row a:visited { color: var(--aurevia-text-on-light); }
+.submit-row input.default, .submit-row input[type="submit"] { background: var(--aurevia-gold); color: var(--aurevia-text-on-dark); }
+.submit-row a.deletelink, .submit-row a.deletelink:link, .submit-row a.deletelink:visited { background: transparent; color: var(--aurevia-danger); }
+.messagelist .success, .messagelist .info, .messagelist .warning, .messagelist .error { color: var(--aurevia-text-on-light); border-color: var(--aurevia-border-light); }
+.paginator, .paginator a, .paginator a:link, .paginator a:visited, .paginator .this-page { color: var(--aurevia-text-on-light); }
+.paginator a:hover, .paginator a:focus, .paginator .this-page { background: var(--aurevia-soft); border-color: var(--aurevia-border-light); }
+#change-history, #change-history table, #change-history th, #change-history td, .delete-confirmation, .delete-confirmation ul { color: var(--aurevia-text-on-light); }
+.aurevia-login input, .aurevia-login .errornote, .aurevia-login .errorlist { color: var(--aurevia-field-text); }
+
+@media (max-width: 900px) {
+  #changelist .changelist-form-container:has(#changelist-filter) > div { max-width: calc(100% - 220px); }
+  #changelist-filter { flex-basis: 200px; margin-left: 16px; }
+}
