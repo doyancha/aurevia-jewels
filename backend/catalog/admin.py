@@ -43,9 +43,17 @@ class CategoryAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     ordering = ("display_order", "name", "pk")
     readonly_fields = ("created_at", "updated_at", "product_count", "storefront_link")
     fieldsets = (
-        ("Category", {"fields": ("name", "slug", "description", "is_active", "display_order", "storefront_link", "product_count")}),
+        ("Category", {"fields": ("name", "slug", "description", "is_active", "display_order", "storefront_link", "product_count"), "classes": ("aurevia-form-grid", "aurevia-form-grid--category")}),
         ("System", {"fields": ("created_at", "updated_at")}),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        if obj:
+            return self.fieldsets
+        name, options = self.fieldsets[0]
+        options = dict(options)
+        options["fields"] = tuple(field for field in options["fields"] if field != "product_count")
+        return ((name, options),)
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_product_count=Count("products"))
@@ -82,10 +90,13 @@ class CollectionAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     ordering = ("display_order", "name", "pk")
     readonly_fields = ("legacy_image_path", "resolved_cover", "resolved_cover_source", "storefront_link", "member_product_count", "created_at", "updated_at")
     fieldsets = (
-        ("Collection", {"fields": ("name", "slug", "description", "is_active", "display_order", "products", "storefront_link")}),
+        ("Collection", {"fields": ("name", "slug", "description", "is_active", "display_order", "products", "storefront_link"), "classes": ("aurevia-form-grid", "aurevia-form-grid--collection")}),
         ("Resolved cover", {"fields": ("resolved_cover", "resolved_cover_source", "legacy_image_path"), "description": "The cover remains derived from the established member-product primary image. Empty collections show no cover."}),
         ("System", {"fields": ("member_product_count", "created_at", "updated_at")}),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        return self.fieldsets if obj else (self.fieldsets[0],)
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
@@ -237,18 +248,41 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
         "legacy_key", "legacy_code", "created_at", "updated_at", "media_summary", "media_manager_link", "storefront_preview",
     )
     fieldsets = (
-        ("Identity", {"fields": ("product_code", "name", "slug", "storefront_preview", "legacy_key", "legacy_code")}),
-        ("Catalog", {"fields": ("category", "collections", "availability_status")}),
-        ("Pricing", {"fields": ("price", "compare_at_price", "currency_code")}),
-        ("Content", {"fields": ("short_description", "description", "long_description")}),
-        ("Product Details", {"fields": ("material", "color", "finish", "dimensions")}),
-        ("Discovery", {"fields": ("occasions", "tags", "badges")}),
-        ("Merchandising", {"fields": ("is_featured", "is_new_arrival", "is_best_seller", "display_order")}),
-        ("SEO", {"fields": ("seo_title", "seo_description")}),
+        ("Identity", {"fields": ("product_code", "name", "slug", "storefront_preview", "legacy_key", "legacy_code"), "classes": ("aurevia-form-grid", "aurevia-form-grid--identity")}),
+        ("Catalog", {"fields": ("category", "collections", "availability_status"), "classes": ("aurevia-form-grid", "aurevia-form-grid--catalog")}),
+        ("Pricing", {"fields": ("price", "compare_at_price", "currency_code"), "classes": ("aurevia-form-grid", "aurevia-form-grid--pricing")}),
+        ("Content", {"fields": ("short_description", "description", "long_description"), "classes": ("aurevia-form-grid", "aurevia-form-grid--content")}),
+        ("Product Details", {"fields": ("material", "color", "finish", "dimensions"), "classes": ("aurevia-form-grid", "aurevia-form-grid--details")}),
+        ("Discovery", {"fields": ("occasions", "tags", "badges"), "classes": ("aurevia-form-grid", "aurevia-form-grid--discovery")}),
+        ("Merchandising", {"fields": ("is_featured", "is_new_arrival", "is_best_seller", "display_order"), "classes": ("aurevia-form-grid", "aurevia-form-grid--merchandising")}),
+        ("SEO", {"fields": ("seo_title", "seo_description"), "classes": ("aurevia-form-grid", "aurevia-form-grid--seo")}),
         ("Media manager", {"fields": ("media_summary", "media_manager_link"), "description": "Uploads are server-validated and local development media is stored outside the concept fixture. Provenance is read-only and remains Representative Demo."}),
         ("Publishing", {"fields": ("is_published",), "description": "Publishing controls storefront visibility eligibility only. It does not certify inventory or photography."}),
         ("System", {"fields": ("created_at", "updated_at")}),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        if obj:
+            return self.fieldsets
+        fieldsets = []
+        for name, options in self.fieldsets:
+            options = dict(options)
+            fields = tuple(options["fields"])
+            if name == "Identity":
+                fields = tuple(field for field in fields if field not in {"storefront_preview", "legacy_key", "legacy_code"})
+            elif name == "Media manager":
+                fields = ("media_summary",)
+                options["description"] = ""
+            elif name == "System":
+                continue
+            options["fields"] = fields
+            fieldsets.append((name, options))
+        return tuple(fieldsets)
+
+    def get_inline_instances(self, request, obj=None):
+        if obj is None:
+            return []
+        return super().get_inline_instances(request, obj)
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
@@ -516,7 +550,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     @admin.display(description="Media summary")
     def media_summary(self, obj):
         if not obj or not obj.pk:
-            return "Save the product to view media."
+            return "Media becomes available after the product is saved. Save this product first, then you can upload, reorder, replace, remove, edit alt text, and select the primary image."
         images = obj.images.all()
         total = len(images)
         primary = sum(image.is_primary for image in images)

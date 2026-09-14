@@ -115,3 +115,133 @@ ul.errorlist li, .errorlist li, .errornote a { color: var(--aurevia-error-text);
   #changelist .changelist-form-container:has(#changelist-filter) > div { max-width: calc(100% - 220px); }
   #changelist-filter { flex-basis: 200px; margin-left: 16px; }
 }
+
+/* Add-form layout: Django keeps the native field rows and labels; this only
+   gives short, related controls a responsive grid on the surrounding fieldset. */
+fieldset.aurevia-form-grid {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+fieldset.aurevia-form-grid > .fieldset-heading,
+fieldset.aurevia-form-grid > .description {
+  grid-column: 1 / -1;
+}
+fieldset.aurevia-form-grid > .form-row {
+  min-width: 0;
+}
+fieldset.aurevia-form-grid--identity,
+fieldset.aurevia-form-grid--details,
+fieldset.aurevia-form-grid--category { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+fieldset.aurevia-form-grid--pricing { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+fieldset.aurevia-form-grid--merchandising { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+fieldset.aurevia-form-grid--catalog,
+fieldset.aurevia-form-grid--collection { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+fieldset.aurevia-form-grid--content,
+fieldset.aurevia-form-grid--discovery,
+fieldset.aurevia-form-grid--seo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+fieldset.aurevia-form-grid .field-description,
+fieldset.aurevia-form-grid .field-long_description,
+fieldset.aurevia-form-grid .field-seo_description,
+fieldset.aurevia-form-grid .field-occasions,
+fieldset.aurevia-form-grid .field-tags,
+fieldset.aurevia-form-grid .field-badges,
+fieldset.aurevia-form-grid .field-products,
+fieldset.aurevia-form-grid .field-storefront_preview { grid-column: 1 / -1; }
+fieldset.aurevia-form-grid .field-description textarea,
+fieldset.aurevia-form-grid .field-long_description textarea,
+fieldset.aurevia-form-grid .field-seo_description textarea,
+fieldset.aurevia-form-grid .field-occasions textarea,
+fieldset.aurevia-form-grid .field-tags textarea,
+fieldset.aurevia-form-grid .field-badges textarea { max-width: 720px; }
+fieldset.aurevia-form-grid .field-display_order input,
+fieldset.aurevia-form-grid .field-currency_code input { max-width: 12rem; }
+fieldset.aurevia-form-grid .field-name input,
+fieldset.aurevia-form-grid .field-slug input,
+fieldset.aurevia-form-grid .field-product_code input,
+fieldset.aurevia-form-grid .field-material input,
+fieldset.aurevia-form-grid .field-color input,
+fieldset.aurevia-form-grid .field-finish input,
+fieldset.aurevia-form-grid .field-dimensions input { max-width: 28rem; }
+
+/* Native FilteredSelectMultiple: preserve Django's selector JS and semantics,
+   while replacing its stock blue/teal surfaces with Aurevia tokens. */
+.selector { gap: 14px; }
+.selector-available-title,
+.selector-chosen-title {
+  background: var(--aurevia-soft);
+  border-color: var(--aurevia-border-light);
+  color: var(--aurevia-text-on-light);
+}
+.selector .selector-available-title,
+.selector .selector-chosen-title {
+  background: var(--aurevia-soft);
+  color: var(--aurevia-text-on-light);
+}
+.selector .selector-chosen-title label,
+.selector .selector-available-title label,
+.selector .selector-chosen-title .helptext,
+.selector .selector-available-title .helptext { color: var(--aurevia-text-on-light-muted); }
+.selector-chosen-title label,
+.selector-available-title label,
+.selector .selector-filter,
+.selector .helptext { color: var(--aurevia-text-on-light-muted); }
+.selector .selector-filter {
+  background: var(--aurevia-table-bg);
+  border-color: var(--aurevia-border-light);
+}
+.selector .selector-filter input,
+.selector select {
+  background: var(--aurevia-field-bg);
+  color: var(--aurevia-field-text);
+  border-color: var(--aurevia-field-border);
+}
+.selector select option { color: var(--aurevia-field-text); background: var(--aurevia-field-bg); }
+.selector select option:checked { background: var(--aurevia-table-selected); color: var(--aurevia-text-on-light); }
+.selector select:focus,
+.selector .selector-filter input:focus { outline: 3px solid rgba(162,120,60,.34); outline-offset: 1px; }
+.selector ul.selector-chooser {
+  align-self: center;
+  background: var(--aurevia-soft);
+  border: 1px solid var(--aurevia-border-light);
+  border-radius: var(--aurevia-radius-sm);
+}
+.selector-chooser li { background: transparent; }
+.selector-chooser .selector-add,
+.selector-chooser .selector-remove {
+  background-image: none;
+  border-radius: var(--aurevia-radius-sm);
+  color: var(--aurevia-text-on-light);
+  font-size: 0;
+  filter: none;
+  text-indent: 0;
+}
+.selector-chooser .selector-add::after,
+.selector-chooser .selector-remove::after {
+  display: block;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.selector-chooser .selector-add::after { content: "→"; }
+.selector-chooser .selector-remove::after { content: "←"; }
+.selector-chooser .selector-add:disabled,
+.selector-chooser .selector-remove:disabled {
+  background: var(--aurevia-soft);
+  color: var(--aurevia-text-on-light-muted);
+}
+.selector-chooser :enabled.selector-add:hover,
+.selector-chooser :enabled.selector-add:focus,
+.selector-chooser :enabled.selector-remove:hover,
+.selector-chooser :enabled.selector-remove:focus { background-color: var(--aurevia-table-selected); outline: 2px solid var(--aurevia-gold); }
+.selector-chosen .list-footer-display { background: var(--aurevia-soft); border-color: var(--aurevia-border-light); color: var(--aurevia-text-on-light-muted); }
+.selector-chosen .list-footer-display__clear { color: var(--aurevia-link-on-light); }
+.selector :disabled { color: var(--aurevia-text-on-light-muted); opacity: .72; }
+
+@media (max-width: 900px) {
+  fieldset.aurevia-form-grid,
+  fieldset.aurevia-form-grid--pricing,
+  fieldset.aurevia-form-grid--merchandising { grid-template-columns: 1fr; }
+  fieldset.aurevia-form-grid > .form-row { grid-column: 1 / -1; }
+  .selector { flex-direction: column; }
+  .selector ul.selector-chooser { display: flex; justify-content: center; width: auto; }
+}

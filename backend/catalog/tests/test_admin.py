@@ -177,6 +177,40 @@ class CatalogAdminTests(TestCase):
         self.assertEqual(rendered_links, ["http://localhost:3000", "http://localhost:3000"])
         self.assertNotIn("http://127.0.0.1:3000", html)
 
+    def test_add_forms_use_refined_unsaved_object_states(self):
+        product_add = self.client.get(reverse("admin:catalog_product_add"))
+        self.assertEqual(product_add.status_code, 200)
+        self.assertContains(product_add, "Media becomes available after the product is saved.")
+        self.assertNotContains(product_add, "Save the product before adding media.")
+        self.assertNotContains(product_add, "Product Images")
+        self.assertNotContains(product_add, "Created at")
+        self.assertNotContains(product_add, "Storefront preview")
+        self.assertContains(product_add, "aurevia-form-grid--pricing")
+
+        collection_add = self.client.get(reverse("admin:catalog_collection_add"))
+        self.assertEqual(collection_add.status_code, 200)
+        self.assertContains(collection_add, "SelectFilter2.js")
+        self.assertNotContains(collection_add, "Resolved cover")
+        self.assertNotContains(collection_add, "Created at")
+
+        category_add = self.client.get(reverse("admin:catalog_category_add"))
+        self.assertEqual(category_add.status_code, 200)
+        self.assertNotContains(category_add, "Created at")
+
+    def test_existing_change_forms_retain_media_and_system_sections(self):
+        product = self.create_product()
+        collection = self.collection
+        category = self.category
+        product_change = self.client.get(self.admin_url("change", product))
+        self.assertContains(product_change, "Product images")
+        self.assertContains(product_change, "Created at")
+        self.assertContains(product_change, "Storefront preview")
+        collection_change = self.client.get(reverse("admin:catalog_collection_change", args=[collection.pk]))
+        self.assertContains(collection_change, "Resolved cover")
+        self.assertContains(collection_change, "Created at")
+        category_change = self.client.get(reverse("admin:catalog_category_change", args=[category.pk]))
+        self.assertContains(category_change, "Created at")
+
     def test_premium_login_and_product_presentation_preserve_semantics(self):
         self.client.logout()
         login = self.client.get(reverse("admin:login"))
