@@ -5,7 +5,7 @@ import { getConfiguredMessengerUrl, cn } from '@/lib/utils';
 
 interface MessengerButtonProps {
   label?: string;
-  variant?: 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   ariaLabel?: string;
@@ -15,7 +15,7 @@ interface MessengerButtonProps {
 
 export function MessengerButton({
   label = 'Open Messenger',
-  variant = 'secondary',
+  variant = 'primary',
   size = 'md',
   className,
   ariaLabel,
@@ -29,8 +29,9 @@ export function MessengerButton({
 
   const styles = {
     base: 'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2',
+    primary: 'bg-[#0084FF] text-white shadow-sm hover:bg-[#006FE6]',
     secondary: 'bg-charcoal text-white hover:bg-black',
-    outline: 'border-2 border-white/80 text-white hover:bg-white hover:text-charcoal',
+    outline: 'border-2 border-[#0084FF] text-[#0084FF] hover:bg-[#0084FF] hover:text-white',
   };
   const sizes = {
     sm: 'h-9 px-4 text-sm',

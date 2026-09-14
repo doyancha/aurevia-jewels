@@ -10,6 +10,7 @@ import { siteConfig } from '@/config/site';
 import { MobileMenu } from './MobileMenu';
 import { SearchOverlay } from './SearchOverlay';
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
+import { MessengerButton } from '@/components/ui/MessengerButton';
 import type { Product } from '@/types';
 
 export function Header({ products, catalogAvailable }: { products: Product[]; catalogAvailable: boolean }) {
@@ -86,13 +87,20 @@ export function Header({ products, catalogAvailable }: { products: Product[]; ca
               >
                 <Search size={20} />
               </button>
-              <WhatsAppButton
-                variant="secondary"
-                size="sm"
-                className="hidden md:inline-flex rounded-sm"
-              >
-                WhatsApp
-              </WhatsAppButton>
+              <div className="hidden lg:grid w-52 grid-cols-2 items-center gap-2">
+                <WhatsAppButton
+                  variant="primary"
+                  size="sm"
+                  className="w-full rounded-md"
+                >
+                  WhatsApp
+                </WhatsAppButton>
+                <MessengerButton
+                  label="Messenger"
+                  size="sm"
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -124,12 +124,14 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               <WhatsAppButton
                 product={product}
                 productUrl={`${siteConfig.url}/products/${product.slug}`}
-                className="w-full text-lg py-4"
+                size="lg"
+                className="w-full text-lg"
               />
               <MessengerButton
                 label="Order on Messenger"
                 productCode={product.productCode}
                 showProductHint
+                className="w-full"
                 size="lg"
               />
             </div>

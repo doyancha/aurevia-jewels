@@ -98,13 +98,13 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <motion.div variants={itemVariants} className="space-y-3 p-6 border-t border-soft-gray/20">
               <WhatsAppButton
                 variant="secondary"
-                className="w-full rounded-none"
+                className="w-full rounded-md"
                 ariaLabel="Open WhatsApp ordering demo"
                 onClick={onClose}
               >
                 Order via WhatsApp
               </WhatsAppButton>
-              <MessengerButton label="Order via Messenger" />
+              <MessengerButton label="Order via Messenger" className="w-full" />
             </motion.div>
           </motion.div>
         </>

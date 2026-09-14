@@ -45,13 +45,15 @@ export function StickyMobileCTA({ product }: StickyMobileCTAProps) {
           <WhatsAppButton
             product={product}
             productUrl={`${siteConfig.url}/products/${product.slug}`}
-            className="w-full px-6 py-2.5 text-sm"
+            size="md"
+            className="w-full text-sm"
           />
           <MessengerButton
             label="Order on Messenger"
             productCode={product.productCode}
             showProductHint
-            size="sm"
+            className="w-full"
+            size="md"
           />
         </div>
       </div>

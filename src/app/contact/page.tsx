@@ -68,7 +68,7 @@ export default function ContactPage() {
                   <p className="text-gray-600 mb-5">
                     Continue the conversation in Messenger for product and general inquiries.
                   </p>
-                  <MessengerButton label="Open Messenger" />
+                  <MessengerButton label="Open Messenger" className="w-full sm:w-auto" />
                   <p className="mt-4 text-sm text-gray-500">
                     This demo link opens Messenger directly; the final Aurevia Page destination will be connected later.
                   </p>

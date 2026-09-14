@@ -71,7 +71,7 @@ export function Hero() {
 
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
+            className="flex w-full flex-col items-center gap-4 sm:flex-row"
           >
             <Link
               href="/shop"
@@ -79,18 +79,19 @@ export function Hero() {
             >
               Shop Collection
             </Link>
-            <WhatsAppButton
-              variant="outline"
-              className="w-full sm:w-auto px-8 py-3.5 bg-transparent text-sm uppercase tracking-wider rounded-sm"
-            >
-              Order on WhatsApp
-            </WhatsAppButton>
-            <MessengerButton
-              label="Order on Messenger"
-              variant="outline"
-              className="w-full sm:w-auto"
-              size="md"
-            />
+            <div className="grid w-full grid-cols-1 gap-4 sm:flex-1 sm:grid-cols-2">
+              <WhatsAppButton
+                variant="outline"
+                className="w-full px-8 text-sm uppercase tracking-wider rounded-md"
+              >
+                Order on WhatsApp
+              </WhatsAppButton>
+              <MessengerButton
+                label="Order on Messenger"
+                className="w-full"
+                size="md"
+              />
+            </div>
           </motion.div>
         </motion.div>
       </div>
