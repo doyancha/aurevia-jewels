@@ -18,7 +18,7 @@ export interface ProductQuery {
 export const CATALOG_TIMEOUT_MS = 5000;
 export const CATALOG_REVALIDATE_SECONDS = 60;
 const RETRY_DELAY_MS = 150;
-const CATEGORY_NAMES: ProductCategory[] = ['Necklaces', 'Earrings', 'Rings', 'Bangles', 'Bracelets', 'Pendants', 'Bridal Sets', 'Jewelry Sets'];
+const CATEGORY_NAMES: ProductCategory[] = ['Necklaces', 'Earrings', 'Rings', 'Bangles', 'Bracelets', 'Pendants', 'Bridal Sets', 'Jewelry Sets', 'Sets', 'Anklets'];
 type CatalogErrorKind = 'configuration' | 'timeout' | 'network' | 'http' | 'invalid_json' | 'contract';
 type EndpointLabel = 'categories-list' | 'category-detail' | 'collections-list' | 'collection-detail' | 'products-list' | 'product-detail';
 

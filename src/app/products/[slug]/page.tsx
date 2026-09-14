@@ -77,7 +77,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       url: canonicalProductUrl,
       priceCurrency: product.currency,
       price: product.price,
-      availability: product.availability === 'Made to Order' ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock',
+      ...(product.availability === 'Made to Order' ? { availability: 'https://schema.org/PreOrder' } : {}),
     },
   };
 

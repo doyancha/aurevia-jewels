@@ -30,7 +30,7 @@ export interface Product {
   badges?: string[];
 }
 
-export type ProductCategory = 'Necklaces' | 'Earrings' | 'Rings' | 'Bangles' | 'Bracelets' | 'Pendants' | 'Bridal Sets' | 'Jewelry Sets';
+export type ProductCategory = 'Necklaces' | 'Earrings' | 'Rings' | 'Bangles' | 'Bracelets' | 'Pendants' | 'Bridal Sets' | 'Jewelry Sets' | 'Sets' | 'Anklets';
 
 export interface Collection {
   name: string;

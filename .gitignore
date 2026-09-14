@@ -52,4 +52,5 @@ backend/.env.local.ps1
 .pytest_cache/
 .coverage
 htmlcov/
+.tmp/
 backend/staticfiles/
