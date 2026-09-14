@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div id="content-main">
+  <h1>{{ title }}</h1>
+  <p>{{ image }}</p>
+  {% if primary_action %}
+    <p>Make this image the product primary? The current primary will become secondary.</p>
+    <form method="post">{% csrf_token %}<input type="submit" value="Set primary" class="default"></form>
+  {% else %}
+    <p>Remove this image? This cannot be undone.</p>
+    <form method="post">{% csrf_token %}<input type="submit" value="Remove image" class="default"></form>
+  {% endif %}
+  <p><a href="{% url 'admin:catalog_product_change' product.pk %}">Cancel</a></p>
+</div>
+{% endblock %}

@@ -66,6 +66,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / ".tmp" / "media"
+CATALOG_MEDIA_BACKEND = os.environ.get("CATALOG_MEDIA_BACKEND", "local")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ALLOWED_HOSTS = []
 CSRF_TRUSTED_ORIGINS = []

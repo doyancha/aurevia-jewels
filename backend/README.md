@@ -87,7 +87,11 @@ photography onboarding; Phase 17 owns commercial activation.
 
 ## Phase 4 Cloudinary product media
 
-Admin image uploads use the official Cloudinary SDK server-side: Browser Admin → Django → Cloudinary. Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in the backend environment. Unsigned browser uploads and frontend Cloudinary configuration are not used.
+Admin image uploads use a server-side storage boundary: local development
+uses Django filesystem storage under .tmp/media/admin-product/, while
+production selects the official Cloudinary SDK through authenticated Django
+Admin requests. Unsigned browser uploads and frontend Cloudinary configuration
+are not used.
 
 Each `ProductImage` owns one unique Cloudinary image asset. New uploads use collision-resistant IDs under `aurevia-jewels/products/`; replacements upload a new asset, commit the database change, then delete the superseded asset. ProductImage and product-cascade deletion clean up owned assets after database commit, with not-found cleanup treated as complete. The database stores only the public ID, HTTPS URL, width, and height.
 

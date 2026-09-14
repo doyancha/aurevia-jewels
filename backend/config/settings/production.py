@@ -8,6 +8,7 @@ from .base import *  # noqa: F403
 
 
 DEBUG = False
+CATALOG_MEDIA_BACKEND = "cloudinary"
 
 
 def _production_database():

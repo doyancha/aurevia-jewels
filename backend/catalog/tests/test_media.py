@@ -1,4 +1,5 @@
 from decimal import Decimal
+import base64
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
@@ -27,7 +28,13 @@ class CloudinaryMediaTests(TestCase):
         )
 
     def image_file(self, name="necklace.png", size=8):
-        return SimpleUploadedFile(name, b"x" * size, content_type="image/png")
+        content = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk"
+            "+A8AAQUBAScY42YAAAAASUVORK5CYII="
+        )
+        if size > media.MAX_UPLOAD_SIZE:
+            content = b"x" * size
+        return SimpleUploadedFile(name, content, content_type="image/png")
 
     def response(self, public_id):
         return {

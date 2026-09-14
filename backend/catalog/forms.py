@@ -181,3 +181,43 @@ class ProductImageInlineFormSet(BaseInlineFormSet):
             for public_id in uploaded_ids:
                 destroy_remote_asset(public_id)
             raise
+
+
+class ProductMediaUploadForm(forms.Form):
+    upload_file = forms.FileField(help_text="JPG, JPEG, PNG, WebP, or AVIF; maximum 10 MiB.")
+    alt_text = forms.CharField(max_length=255, required=True)
+
+    def clean_upload_file(self):
+        upload_file = self.cleaned_data["upload_file"]
+        validate_upload_file(upload_file)
+        return upload_file
+
+    def clean_alt_text(self):
+        value = " ".join(self.cleaned_data["alt_text"].split())
+        if not value:
+            raise ValidationError("Alt text is required and cannot be blank.")
+        return value
+
+
+class ProductMediaAltForm(forms.Form):
+    alt_text = forms.CharField(max_length=255, required=True)
+
+    def clean_alt_text(self):
+        value = " ".join(self.cleaned_data["alt_text"].split())
+        if not value:
+            raise ValidationError("Alt text is required and cannot be blank.")
+        return value
+
+
+class ProductMediaReorderForm(forms.Form):
+    order = forms.CharField(widget=forms.HiddenInput())
+
+    def clean_order(self):
+        raw = self.cleaned_data["order"]
+        try:
+            values = [int(value) for value in raw.split(",") if value]
+        except ValueError as exc:
+            raise ValidationError("Invalid media order.") from exc
+        if len(values) != len(set(values)) or not values:
+            raise ValidationError("Media order must contain each image exactly once.")
+        return values
