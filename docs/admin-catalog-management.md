@@ -80,3 +80,43 @@ There are no bulk publish/delete shortcuts. Media provenance remains read-only
 in normal admin workflows, and `verified_product` approval is deferred to a
 future owner-approved workflow. Phase 16 remains paused and Phase 17 has not
 started.
+
+## Catalog Health Dashboard and audit
+
+The Admin home page includes a read-only Catalog overview and Catalog health
+panel. It reports products, publication state, taxonomy, media totals, image
+primaries, and provenance. Representative Demo imagery is informational: it
+describes concept media and is not a health error. Verified Product imagery is
+reserved for the owner-approved Phase 16 workflow.
+
+Health meanings are intentionally restrained: Healthy means no issue is
+reported; Attention identifies draft or optional metadata needing review;
+Blocked identifies a published/readiness or structural problem; and
+Informational identifies known concept-state facts such as demo media.
+
+Dashboard issue links use normal Django Admin changelist filters. To
+investigate a blocked product, inspect its category, descriptions, pricing,
+and exactly one usable primary image, then use the existing Product form and
+media manager. The dashboard reuses the same
+`catalog.publishing.get_publish_readiness_errors` validator used by Product
+publish validation.
+
+The `audit_catalog` management command is local and read-only. It checks
+primary-image and ordering invariants, usable media paths, alt text,
+provenance values, published readiness, and collection-cover resolution. It
+returns a non-zero status for structural failures and never writes catalog
+rows or calls Cloudinary.
+
+Django's built-in admin history remains the source of truth for Product,
+Category, and Collection changes. Custom media-manager actions also write
+safe Product history entries for upload, replace, remove, reorder, primary
+selection, and alt-text edits. Entries identify the authenticated actor,
+Product, action, and timestamp; they never contain credentials, tokens,
+passwords, binary data, or unnecessary absolute paths. A small recent catalog
+activity list is shown on the Admin home page.
+
+Final admin certification uses a temporary `AJ-ADMIN-CERT-QA` draft and
+development media only. The workflow crosses Admin, ORM/database, API, and
+Next storefront/gallery checks, then removes temporary records and media and
+verifies the canonical concept baseline. This certification does not onboard
+real inventory and does not resume Phase 16.

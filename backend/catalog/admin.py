@@ -1,4 +1,7 @@
+from types import MethodType
+
 from django.contrib import admin
+from django.contrib.admin.models import LogEntry, CHANGE, ADDITION, DELETION
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -8,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 
 from .forms import (
     CategoryAdminForm, CollectionAdminForm, ProductAdminForm,
@@ -16,6 +19,7 @@ from .forms import (
 )
 from .media import cleanup_stored_metadata, delete_stored_asset, store_upload
 from .models import Category, Collection, Product, ProductImage
+from .health import build_catalog_health
 
 
 class StableSlugAdminMixin:
@@ -297,6 +301,13 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     def _redirect_change(self, product):
         return HttpResponseRedirect(reverse("admin:catalog_product_change", args=[product.pk]))
 
+    def _log_media_action(self, request, product, message, action_flag=CHANGE, image=None):
+        """Record safe media mutations in Django's built-in admin history."""
+        target = image or product
+        LogEntry.objects.log_actions(
+            request.user.pk, [target], action_flag, message, single_object=True
+        )
+
     def media_add(self, request, product_id):
         product = get_object_or_404(Product, pk=product_id)
         if not self._media_allowed(request, "add_productimage") or not request.user.has_perm("catalog.change_product"):
@@ -309,11 +320,12 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
                     locked = Product.objects.select_for_update().get(pk=product.pk)
                     has_primary = locked.images.filter(is_primary=True).exists()
                     metadata = store_upload(form.cleaned_data["upload_file"], locked)
-                    ProductImage.objects.create(product=locked, alt_text=form.cleaned_data["alt_text"], sort_order=locked.images.count(), is_primary=not has_primary, **metadata)
+                    created_image = ProductImage.objects.create(product=locked, alt_text=form.cleaned_data["alt_text"], sort_order=locked.images.count(), is_primary=not has_primary, **metadata)
             except Exception:
                 if metadata:
                     cleanup_stored_metadata(metadata)
                 raise
+            self._log_media_action(request, locked, "Added product image via media manager.", ADDITION)
             messages.success(request, "Product image uploaded as {}.".format("primary" if not has_primary else "secondary"))
             return self._redirect_change(product)
         return self._media_page(request, product, form, "Upload product media")
@@ -335,6 +347,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
             target.is_primary = True
             target.save(update_fields=["is_primary", "updated_at"])
         messages.success(request, "Primary image updated.")
+        self._log_media_action(request, product, f"Set image {image.pk} as primary via media manager.")
         return self._redirect_change(product)
 
     def media_alt(self, request, product_id, image_id):
@@ -346,6 +359,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
         if request.method == "POST" and form.is_valid():
             image.alt_text = form.cleaned_data["alt_text"]
             image.save(update_fields=["alt_text", "updated_at"])
+            self._log_media_action(request, product, f"Edited alt text for image {image.pk} via media manager.")
             messages.success(request, "Alt text updated.")
             return self._redirect_change(product)
         return self._media_page(request, product, form, "Edit image alt text")
@@ -375,6 +389,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
                     by_id[image_id].sort_order = position
                 ProductImage.objects.bulk_update(images, ["sort_order", "updated_at"])
             messages.success(request, "Image order updated.")
+            self._log_media_action(request, product, "Reordered product images via media manager.")
         return self._redirect_change(product)
 
     def media_remove(self, request, product_id, image_id):
@@ -403,6 +418,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
             ProductImage.objects.bulk_update(remaining, ["sort_order", "is_primary", "updated_at"])
         if old_source.startswith("/media/admin-product/"):
             transaction.on_commit(lambda source=old_source: delete_stored_asset(ProductImage(source_path=source)))
+        self._log_media_action(request, product, f"Removed image {image_id} via media manager.", DELETION, product)
         messages.success(request, "Product image removed.")
         return self._redirect_change(product)
 
@@ -432,6 +448,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
                 if metadata:
                     cleanup_stored_metadata(metadata)
                 raise
+            self._log_media_action(request, product, f"Replaced image {image_id} via media manager.")
             messages.success(request, "Product image replaced.")
             return self._redirect_change(product)
         return self._media_page(request, product, form, "Replace product media")
@@ -511,3 +528,37 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
 admin.site.site_header = "Aurevia Jewels Admin"
 admin.site.site_title = "Aurevia Administration"
 admin.site.index_title = "Catalog Management"
+
+
+def catalog_admin_index(self, request, extra_context=None):
+    """Extend Django's admin index with a permission-gated read-only health view."""
+    app_list = self.get_app_list(request)
+    context = {
+        **self.each_context(request),
+        "title": self.index_title,
+        "subtitle": None,
+        "app_list": app_list,
+        **(extra_context or {}),
+    }
+    if request.user.has_module_perms("catalog"):
+        health = build_catalog_health()
+        changelist = reverse("admin:catalog_product_changelist")
+        links = {
+            "not_ready": {"is_published__exact": "0"},
+            "published_not_ready": {"is_published__exact": "1"},
+        }
+        for item in health["issues"]:
+            if item.key in links:
+                item.url = f"{changelist}?{urlencode(links[item.key])}"
+        context["catalog_health"] = health
+        context["recent_catalog_activity"] = list(
+            self.get_log_entries(request).filter(
+                content_type__app_label="catalog",
+                content_type__model__in=("product", "category", "collection", "productimage"),
+            ).order_by("-action_time")[:8]
+        )
+    request.current_app = self.name
+    return TemplateResponse(request, "admin/catalog/index.html", context)
+
+
+admin.site.index = MethodType(catalog_admin_index, admin.site)

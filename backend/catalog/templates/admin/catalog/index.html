@@ -1,0 +1,40 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div id="content-main">
+    <div class="module">
+      <h2>Catalog overview</h2>
+      <table>
+        <tbody>
+          {% for label, value in catalog_health.metrics.items %}
+            <tr><th>{{ label }}</th><td>{{ value }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="module">
+      <h2>Catalog health</h2>
+      <p><strong>{{ catalog_health.blocked_count }}</strong> blocked · <strong>{{ catalog_health.attention_count }}</strong> attention</p>
+      <table>
+        <thead><tr><th>Check</th><th>Count</th><th>Severity</th><th>Meaning</th></tr></thead>
+        <tbody>
+          {% for item in catalog_health.issues %}
+            <tr><th>{% if item.url %}<a href="{{ item.url }}">{{ item.label }}</a>{% else %}{{ item.label }}{% endif %}</th><td>{{ item.count }}</td><td>{{ item.severity }}</td><td>{{ item.description }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if recent_catalog_activity %}
+      <div class="module">
+        <h2>Recent catalog activity</h2>
+        <ul class="actionlist">
+          {% for entry in recent_catalog_activity %}
+            <li>{{ entry.action_time|date:"Y-m-d H:i" }} · {{ entry.user }} · {{ entry.change_message|default:entry.object_repr }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    <div class="app-list">{% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}</div>
+  </div>
+{% endblock %}

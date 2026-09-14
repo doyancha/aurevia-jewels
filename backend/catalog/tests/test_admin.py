@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib import admin
+from django.contrib.admin.models import LogEntry
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import Client, TestCase
@@ -8,6 +9,7 @@ from django.urls import reverse
 
 from catalog.admin import CategoryAdmin, CollectionAdmin, ProductAdmin, ProductImageInline
 from catalog.models import Category, Collection, Product, ProductImage
+from catalog.health import audit_catalog, build_catalog_health
 
 
 class CatalogAdminTests(TestCase):
@@ -143,3 +145,27 @@ class CatalogAdminTests(TestCase):
         self.assertEqual(category.product_count(category_row), 1)
         self.assertEqual(collection.member_product_count(collection_row), 1)
         product.delete()
+
+    def test_catalog_health_dashboard_is_read_only_and_permission_gated(self):
+        response = self.client.get(reverse("admin:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Catalog overview")
+        self.assertContains(response, "Representative Demo images")
+        before = list(Product.objects.values_list("pk", "updated_at"))
+        self.assertEqual(build_catalog_health()["metrics"]["Products"], 0)
+        self.assertEqual(before, list(Product.objects.values_list("pk", "updated_at")))
+
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 302)
+
+    def test_catalog_audit_passes_valid_product_and_media_history_is_safe(self):
+        product = self.create_product()
+        ProductImage.objects.create(product=product, source_path="/media/admin-product/a.png", alt_text="A", is_primary=True)
+        self.assertEqual(audit_catalog(), [])
+        model_admin = admin.site._registry[Product]
+        request = self.client.get(reverse("admin:index")).wsgi_request
+        model_admin._log_media_action(request, product, "Reordered product images via media manager.")
+        entry = LogEntry.objects.filter(object_id=str(product.pk)).latest("action_time")
+        self.assertEqual(entry.user, self.user)
+        self.assertIn("media manager", entry.change_message)
+        self.assertNotRegex(entry.change_message.lower(), r"password|token|secret|credential|cloudinary|c:\\")
