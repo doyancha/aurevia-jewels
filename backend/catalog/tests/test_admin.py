@@ -1,4 +1,5 @@
 from decimal import Decimal
+import re
 
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry
@@ -163,8 +164,18 @@ class CatalogAdminTests(TestCase):
         response = self.client.get(reverse("admin:index"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["site_url"], "http://localhost:3000")
-        self.assertEqual(response.content.decode().count('href="http://localhost:3000"'), 2)
-        self.assertNotContains(response, "http://127.0.0.1:3000")
+        html = response.content.decode()
+        rendered_links = re.findall(
+            r'<div id="user-tools"[^>]*>.*?<a href="([^"]+)"[^>]*>View Store</a>',
+            html,
+            flags=re.DOTALL,
+        )
+        rendered_links += re.findall(
+            r'<a class="aurevia-button aurevia-button--secondary" href="([^"]+)"[^>]*>View Store',
+            html,
+        )
+        self.assertEqual(rendered_links, ["http://localhost:3000", "http://localhost:3000"])
+        self.assertNotIn("http://127.0.0.1:3000", html)
 
     def test_premium_login_and_product_presentation_preserve_semantics(self):
         self.client.logout()
