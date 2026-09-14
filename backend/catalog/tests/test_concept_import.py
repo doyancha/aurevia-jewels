@@ -34,9 +34,9 @@ class ConceptImportGuardTests(SimpleTestCase):
 class ConceptImportImageTests(TestCase):
     def test_mixed_one_and_three_image_import_has_deterministic_collection_covers(self):
         call_command("import_concept_catalog", PACKAGE, "--apply", "--local-only", "--settings=config.settings.development")
-        self.assertEqual(ProductImage.objects.count(), 56)
+        self.assertEqual(ProductImage.objects.count(), 64)
         self.assertEqual(Collection.objects.exclude(legacy_image_path="").count(), 8)
-        self.assertEqual(ProductImage.objects.filter(provenance_status="representative_demo").count(), 56)
+        self.assertEqual(ProductImage.objects.filter(provenance_status="representative_demo").count(), 64)
         self.assertTrue(Collection.objects.first().legacy_image_path.endswith("/01.png"))
 
     def test_manifest_accepts_three_ordered_images_when_supplied(self):
