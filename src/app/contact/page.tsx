@@ -3,6 +3,7 @@ import { ArrowUpRight, BadgeInfo, MessageCircle } from 'lucide-react';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
+import { MessengerButton } from '@/components/ui/MessengerButton';
 import { siteConfig } from '@/config/site';
 
 export const metadata: Metadata = {
@@ -52,6 +53,24 @@ export default function ContactPage() {
                   </WhatsAppButton>
                   <p className="mt-4 text-sm text-gray-500">
                     The preview shows the product enquiry message that would be sent once a live number is connected.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-soft-gray/20 bg-white p-8 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-charcoal text-ivory">
+                  <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-serif text-gray-900 mb-3">Messenger</h2>
+                  <p className="text-gray-600 mb-5">
+                    Continue the conversation in Messenger for product and general inquiries.
+                  </p>
+                  <MessengerButton label="Open Messenger" />
+                  <p className="mt-4 text-sm text-gray-500">
+                    This demo link opens Messenger directly; the final Aurevia Page destination will be connected later.
                   </p>
                 </div>
               </div>

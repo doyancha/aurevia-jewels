@@ -10,7 +10,8 @@
     "verify:catalog-contract": "node scripts/verify-catalog-contract.mjs",
     "verify:local-fullstack": "node scripts/verify-local-fullstack.mjs",
     "verify:production-config": "node scripts/verify-production-config.mjs",
-    "verify:concept-preview": "node scripts/verify-concept-preview-pipeline.mjs"
+    "verify:concept-preview": "node scripts/verify-concept-preview-pipeline.mjs",
+    "verify:messenger": "node scripts/verify-messenger.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.1.1",

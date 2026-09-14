@@ -2,6 +2,7 @@
 
 import { Product } from '@/types';
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
+import { MessengerButton } from '@/components/ui/MessengerButton';
 import { ProductGallery } from '@/components/ui/ProductGallery';
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
 import { formatPrice } from '@/lib/utils';
@@ -119,11 +120,19 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
           {/* CTA Desktop */}
           <div className="hidden md:block mb-10">
-            <WhatsAppButton
-              product={product}
-              productUrl={`${siteConfig.url}/products/${product.slug}`}
-              className="w-full text-lg py-4"
-            />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <WhatsAppButton
+                product={product}
+                productUrl={`${siteConfig.url}/products/${product.slug}`}
+                className="w-full text-lg py-4"
+              />
+              <MessengerButton
+                label="Order on Messenger"
+                productCode={product.productCode}
+                showProductHint
+                size="lg"
+              />
+            </div>
           </div>
 
           {/* Trust Indicators */}

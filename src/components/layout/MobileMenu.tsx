@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import Link from 'next/link';
 import { siteConfig } from '@/config/site';
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
+import { MessengerButton } from '@/components/ui/MessengerButton';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -94,7 +95,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 </motion.div>
               ))}
             </nav>
-            <motion.div variants={itemVariants} className="p-6 border-t border-soft-gray/20">
+            <motion.div variants={itemVariants} className="space-y-3 p-6 border-t border-soft-gray/20">
               <WhatsAppButton
                 variant="secondary"
                 className="w-full rounded-none"
@@ -103,6 +104,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               >
                 Order via WhatsApp
               </WhatsAppButton>
+              <MessengerButton label="Order via Messenger" />
             </motion.div>
           </motion.div>
         </>

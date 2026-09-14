@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Product } from '@/types';
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
+import { MessengerButton } from '@/components/ui/MessengerButton';
 import { formatPrice } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { siteConfig } from '@/config/site';
@@ -31,20 +32,26 @@ export function StickyMobileCTA({ product }: StickyMobileCTAProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] transform transition-transform duration-300 ease-in-out z-50 md:hidden",
+        "fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white border-t border-gray-200 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] transform transition-transform duration-300 ease-in-out z-50 md:hidden",
         isVisible ? "translate-y-0" : "translate-y-full"
       )}
     >
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3">
         <div className="flex flex-col truncate">
           <span className="text-sm font-medium text-gray-900 truncate">{product.name}</span>
           <span className="text-sm text-gray-500 font-medium">{formatPrice(product.price)}</span>
         </div>
-        <div className="flex-shrink-0">
+        <div className="flex flex-col gap-2">
           <WhatsAppButton
             product={product}
             productUrl={`${siteConfig.url}/products/${product.slug}`}
-            className="px-6 py-2.5 text-sm"
+            className="w-full px-6 py-2.5 text-sm"
+          />
+          <MessengerButton
+            label="Order on Messenger"
+            productCode={product.productCode}
+            showProductHint
+            size="sm"
           />
         </div>
       </div>

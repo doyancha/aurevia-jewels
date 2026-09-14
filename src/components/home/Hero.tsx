@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
+import { MessengerButton } from '@/components/ui/MessengerButton';
 
 export function Hero() {
   const containerVariants = {
@@ -84,6 +85,12 @@ export function Hero() {
             >
               Order on WhatsApp
             </WhatsAppButton>
+            <MessengerButton
+              label="Order on Messenger"
+              variant="outline"
+              className="w-full sm:w-auto"
+              size="md"
+            />
           </motion.div>
         </motion.div>
       </div>

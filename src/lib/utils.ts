@@ -63,6 +63,28 @@ export function getConfiguredExternalUrl(url?: string | null): string | undefine
   return url;
 }
 
+const allowedMessengerHosts = new Set(['messenger.com', 'www.messenger.com', 'm.me', 'www.m.me']);
+
+/**
+ * Return the configured Messenger destination only for approved HTTPS hosts.
+ */
+export function getConfiguredMessengerUrl(url = siteConfig.messengerUrl): string | undefined {
+  if (!url || isPlaceholderBusinessValue(url)) {
+    return undefined;
+  }
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:' || !allowedMessengerHosts.has(parsed.hostname.toLowerCase())) {
+      return undefined;
+    }
+
+    return parsed.toString();
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Determine whether the storefront is currently operating in demo mode.
  */

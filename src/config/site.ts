@@ -20,6 +20,9 @@ export const siteConfig = {
    */
   whatsappNumber: '8801XXXXXXXXX',
 
+  /** Public Messenger destination for ordering and contact. */
+  messengerUrl: 'https://www.messenger.com/',
+
   /** Site URL for SEO and canonical links */
   url: siteUrl,
 
