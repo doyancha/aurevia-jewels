@@ -29,7 +29,7 @@ export function FeaturedProducts({ catalog }: { catalog: Product[] }) {
         </AnimatedSection>
 
         <AnimatedSection delay={0.2}>
-          <ProductGrid products={displayProducts} columns={4} />
+          <ProductGrid products={displayProducts} columns={3} />
         </AnimatedSection>
       </div>
     </section>

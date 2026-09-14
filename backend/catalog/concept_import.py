@@ -66,19 +66,41 @@ def load_concept(root: Path) -> dict:
         for field in ("featured", "new_arrival", "best_seller", "published"):
             _bool(row[field])
     seen_hashes = set()
+    seen_paths = set()
+    manifest_images = []
     for row in manifest:
         if row["product_code"] not in product_codes or row["image_provenance"] != "representative_demo":
             errors.append(f"invalid image manifest row: {row['product_code']}")
-        path = root / "images" / row["product_code"] / row["primary_image"]
-        if not path.is_file() or not path.stat().st_size:
-            errors.append(f"missing primary image: {row['product_code']}")
-            continue
-        digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        if digest in seen_hashes:
-            errors.append(f"duplicate image: {row['product_code']}")
-        seen_hashes.add(digest)
-        width, height = _dimensions(path)
-        images.append({"code": row["product_code"], "path": path, "width": width, "height": height})
+        candidates = [(row["primary_image"], 0, True)]
+        candidates.extend((name, index + 1, False) for index, name in enumerate((row.get("secondary_images") or "").split("|") if row.get("secondary_images") else []))
+        for filename, sort_order, is_primary in candidates:
+            if not filename:
+                continue
+            relative = Path(filename)
+            if relative.is_absolute() or ".." in relative.parts or relative.name != filename:
+                errors.append(f"unsafe image path: {row['product_code']} {filename}")
+                continue
+            path = root / "images" / row["product_code"] / filename
+            if not path.is_file() or not path.stat().st_size:
+                if is_primary:
+                    errors.append(f"missing primary image: {row['product_code']}")
+                continue
+            if path in seen_paths:
+                errors.append(f"duplicate image path: {path.name}")
+            seen_paths.add(path)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            if digest in seen_hashes:
+                errors.append(f"duplicate image: {row['product_code']} {filename}")
+            seen_hashes.add(digest)
+            width, height = _dimensions(path)
+            manifest_images.append({"code": row["product_code"], "path": path, "sort_order": sort_order, "is_primary": is_primary, "provenance": row["image_provenance"], "width": width, "height": height})
+    for code in product_codes:
+        product_images = [item for item in manifest_images if item["code"] == code]
+        if sum(item["is_primary"] for item in product_images) != 1:
+            errors.append(f"product {code}: exactly one primary image is required")
+        if len({item["sort_order"] for item in product_images}) != len(product_images):
+            errors.append(f"product {code}: duplicate image sort order")
+    images = manifest_images
     if errors:
         raise ConceptImportError("; ".join(errors))
     return {"root": root, "products": products, "categories": categories, "collections": collections, "images": images}
@@ -87,7 +109,7 @@ def load_concept(root: Path) -> dict:
 def reconcile_concept(data: dict, *, dry_run: bool) -> dict[str, int]:
     """Replace only catalog rows. Existing Cloudinary IDs are cleared before deletion."""
     if dry_run:
-        return {"categories": 8, "collections": 8, "products": 24, "images": 24}
+        return {"categories": 8, "collections": 8, "products": 24, "images": len(data["images"])}
     with transaction.atomic():
         # Prevent the existing delete signal from attempting Cloudinary cleanup.
         ProductImage.objects.exclude(cloudinary_public_id="").update(cloudinary_public_id="", secure_url="")
@@ -100,7 +122,9 @@ def reconcile_concept(data: dict, *, dry_run: bool) -> dict[str, int]:
         collection_map = {}
         for index, row in enumerate(data["collections"]):
             collection_map[row["slug"]] = Collection.objects.create(name=row["name"], slug=row["slug"], description=row["description"], display_order=index)
-        image_map = {row["code"]: row for row in data["images"]}
+        image_map = {}
+        for image in data["images"]:
+            image_map.setdefault(image["code"], []).append(image)
         for index, row in enumerate(data["products"]):
             product = Product.objects.create(
                 legacy_key=row["product_code"], name=row["name"], slug=row["slug"], product_code=row["product_code"],
@@ -113,6 +137,13 @@ def reconcile_concept(data: dict, *, dry_run: bool) -> dict[str, int]:
                 seo_title=row["seo_title"], seo_description=row["seo_description"],
             )
             product.collections.set([collection_map[slug] for slug in row["collections"].split("|")])
-            image = image_map[row["product_code"]]
-            ProductImage.objects.create(product=product, source_path=f"/catalog/concept-demo/{row['product_code']}/01.png", alt_text=f"{row['name']} concept product image", sort_order=0, is_primary=True, width=image["width"], height=image["height"], provenance_status=ProductImage.ProvenanceStatus.REPRESENTATIVE_DEMO)
-    return {"categories": 8, "collections": 8, "products": 24, "images": 24}
+            for image in sorted(image_map[row["product_code"]], key=lambda item: item["sort_order"]):
+                filename = image["path"].name
+                ProductImage.objects.create(product=product, source_path=f"/catalog/concept-demo/{row['product_code']}/{filename}", alt_text=f"{row['name']} concept product image" if image["is_primary"] else f"{row['name']} concept product detail image {image['sort_order'] + 1}", sort_order=image["sort_order"], is_primary=image["is_primary"], width=image["width"], height=image["height"], provenance_status=ProductImage.ProvenanceStatus.REPRESENTATIVE_DEMO)
+        for collection in collection_map.values():
+            member = Product.objects.filter(collections=collection).order_by("display_order", "pk").first()
+            if member:
+                primary = member.images.filter(is_primary=True).first()
+                collection.legacy_image_path = primary.source_path if primary else ""
+                collection.save(update_fields=["legacy_image_path", "updated_at"])
+    return {"categories": 8, "collections": 8, "products": 24, "images": len(data["images"])}

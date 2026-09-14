@@ -25,13 +25,17 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="w-full h-full relative"
         >
-          <Image
-            src={collection.image}
-            alt={`${collection.name} collection preview by Aurevia Jewels`}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
+          {collection.image ? (
+            <Image
+              src={collection.image}
+              alt={`${collection.name} collection preview by Aurevia Jewels`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            />
+          ) : (
+            <div aria-label={`${collection.name} collection preview unavailable`} className="h-full w-full bg-gradient-to-br from-cream via-soft-gray to-champagne-light" />
+          )}
         </motion.div>
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />

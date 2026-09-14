@@ -109,7 +109,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               centered
               className="mb-10"
             />
-            <ProductGrid products={relatedProducts} />
+            <ProductGrid products={relatedProducts} columns={4} />
           </div>
         )}
       </div>
