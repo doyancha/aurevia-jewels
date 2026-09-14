@@ -20,6 +20,7 @@ from .forms import (
 from .media import cleanup_stored_metadata, delete_stored_asset, store_upload
 from .models import Category, Collection, Product, ProductImage
 from .health import build_catalog_health
+from .publishing import get_publish_readiness_errors
 
 
 class StableSlugAdminMixin:
@@ -118,7 +119,9 @@ class CollectionAdmin(StableSlugAdminMixin, admin.ModelAdmin):
 
     @admin.display(description="Cover")
     def cover_status(self, obj):
-        return "Resolved" if obj._cover_image_count else "No cover available"
+        if obj._cover_image_count:
+            return format_html('<span class="aurevia-badge aurevia-badge--healthy">{}</span>', "Resolved")
+        return format_html('<span class="aurevia-badge aurevia-badge--attention">{}</span>', "No cover available")
 
     @admin.display(description="Resolved cover")
     def resolved_cover(self, obj):
@@ -214,8 +217,8 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     form = ProductAdminForm
     inlines = (ProductImageInline,)
     list_display = (
-        "product_code", "name", "category", "price", "currency_code",
-        "availability_status", "is_published", "is_featured", "is_new_arrival",
+        "product_thumbnail", "product_code", "name", "category", "price", "currency_code",
+        "availability_status", "publish_status", "is_featured", "is_new_arrival",
         "is_best_seller", "image_count", "collection_count", "media_provenance", "updated_at",
         "publication_readiness",
     )
@@ -237,11 +240,13 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
         ("Identity", {"fields": ("product_code", "name", "slug", "storefront_preview", "legacy_key", "legacy_code")}),
         ("Catalog", {"fields": ("category", "collections", "availability_status")}),
         ("Pricing", {"fields": ("price", "compare_at_price", "currency_code")}),
-        ("Descriptions", {"fields": ("short_description", "description", "long_description")}),
-        ("Product Attributes", {"fields": ("material", "color", "finish", "dimensions", "occasions", "tags")}),
-        ("Merchandising", {"fields": ("badges", "is_featured", "is_new_arrival", "is_best_seller", "is_published", "display_order")}),
+        ("Content", {"fields": ("short_description", "description", "long_description")}),
+        ("Product Details", {"fields": ("material", "color", "finish", "dimensions")}),
+        ("Discovery", {"fields": ("occasions", "tags", "badges")}),
+        ("Merchandising", {"fields": ("is_featured", "is_new_arrival", "is_best_seller", "display_order")}),
         ("SEO", {"fields": ("seo_title", "seo_description")}),
         ("Media manager", {"fields": ("media_summary", "media_manager_link"), "description": "Uploads are server-validated and local development media is stored outside the concept fixture. Provenance is read-only and remains Representative Demo."}),
+        ("Publishing", {"fields": ("is_published",), "description": "Publishing controls storefront visibility eligibility only. It does not certify inventory or photography."}),
         ("System", {"fields": ("created_at", "updated_at")}),
     )
 
@@ -255,7 +260,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
             _usable_primary_count=Count("images", filter=Q(
                 images__is_primary=True,
             ) & ~Q(images__provenance_status=ProductImage.ProvenanceStatus.RETIRED) & (Q(images__source_path__startswith="/") | Q(images__secure_url__startswith="http://") | Q(images__secure_url__startswith="https://")), distinct=True),
-        )
+        ).prefetch_related("images")
 
     def get_urls(self):
         custom = [
@@ -470,22 +475,43 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
     @admin.display(description="Media provenance")
     def media_provenance(self, obj):
         if obj._verified_image_count and obj._demo_image_count:
-            return "Mixed"
-        if obj._verified_image_count:
-            return "Verified Product"
-        if obj._demo_image_count:
-            return "Representative Demo"
-        return "No media"
+            label, modifier = "Mixed", "informational"
+        elif obj._verified_image_count:
+            label, modifier = "Verified Product", "verified"
+        elif obj._demo_image_count:
+            label, modifier = "Representative Demo", "representative-demo"
+        else:
+            label, modifier = "No media", "attention"
+        return format_html('<span class="aurevia-badge aurevia-badge--{}">{}</span>', modifier, label)
+
+    @admin.display(description="Publish status")
+    def publish_status(self, obj):
+        label = "Published" if obj.is_published else "Draft"
+        modifier = "published" if obj.is_published else "draft"
+        return format_html('<span class="aurevia-badge aurevia-badge--{}">{}</span>', modifier, label)
+
+    @admin.display(description="Thumbnail")
+    def product_thumbnail(self, obj):
+        image = next((image for image in obj.images.all() if image.is_primary), None)
+        if not image:
+            return format_html('<span class="aurevia-thumb aurevia-thumb--empty" aria-label="No product image">{}</span>', "—")
+        source = image.secure_url or image.source_path
+        if source.startswith("/catalog/"):
+            source = urljoin(getattr(settings, "ADMIN_STOREFRONT_BASE_URL", ""), source)
+        if not source.startswith(("http://", "https://", "/")):
+            return format_html('<span class="aurevia-thumb aurevia-thumb--empty" aria-label="Image unavailable">{}</span>', "—")
+        return format_html('<img class="aurevia-thumb" src="{}" alt="{}" loading="lazy" />', source, image.alt_text or f"{obj.name} product image")
 
     @admin.display(description="Publish readiness", ordering="_usable_primary_count")
     def publication_readiness(self, obj):
-        if not obj.category or not obj.category.is_active:
-            return "Missing category"
-        if not obj._image_count:
-            return "Missing image"
-        if obj._primary_image_count != 1 or obj._usable_primary_count != 1:
-            return "Primary image issue"
-        return "Ready"
+        errors = get_publish_readiness_errors(obj)
+        if not errors:
+            label, modifier = "Ready", "healthy"
+        elif obj.is_published:
+            label, modifier = "Blocked", "blocked"
+        else:
+            label, modifier = "Attention", "attention"
+        return format_html('<span class="aurevia-badge aurevia-badge--{}">{}</span>', modifier, label)
 
     @admin.display(description="Media summary")
     def media_summary(self, obj):
@@ -528,6 +554,7 @@ class ProductAdmin(StableSlugAdminMixin, admin.ModelAdmin):
 admin.site.site_header = "Aurevia Jewels Admin"
 admin.site.site_title = "Aurevia Administration"
 admin.site.index_title = "Catalog Management"
+admin.site.site_url = getattr(settings, "ADMIN_STOREFRONT_BASE_URL", "/")
 
 
 def catalog_admin_index(self, request, extra_context=None):
@@ -551,6 +578,25 @@ def catalog_admin_index(self, request, extra_context=None):
             if item.key in links:
                 item.url = f"{changelist}?{urlencode(links[item.key])}"
         context["catalog_health"] = health
+        context["dashboard_metrics"] = [
+            ("Products", health["metrics"]["Products"], reverse("admin:catalog_product_changelist")),
+            ("Published", health["metrics"]["Published Products"], f"{reverse('admin:catalog_product_changelist')}?is_published__exact=1"),
+            ("Categories", health["metrics"]["Categories"], reverse("admin:catalog_category_changelist")),
+            ("Collections", health["metrics"]["Collections"], reverse("admin:catalog_collection_changelist")),
+            ("Images", health["metrics"]["ProductImages"], reverse("admin:catalog_product_changelist")),
+        ]
+        context["dashboard_provenance"] = [
+            ("Primary", health["metrics"]["Primary Images"], "primary"),
+            ("Secondary", health["metrics"]["Secondary Images"], "secondary"),
+            ("Representative Demo", health["metrics"]["Representative Demo Images"], "demo"),
+            ("Verified Product", health["metrics"]["Verified Product Images"], "verified"),
+        ]
+        context["dashboard_actions"] = [
+            ("Add Product", "admin:catalog_product_add", request.user.has_perm("catalog.add_product")),
+            ("Add Collection", "admin:catalog_collection_add", request.user.has_perm("catalog.add_collection")),
+            ("Add Category", "admin:catalog_category_add", request.user.has_perm("catalog.add_category")),
+            ("Run Catalog Audit", "admin:catalog_product_changelist", request.user.has_perm("catalog.view_product")),
+        ]
         context["recent_catalog_activity"] = list(
             self.get_log_entries(request).filter(
                 content_type__app_label="catalog",

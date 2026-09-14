@@ -120,3 +120,22 @@ development media only. The workflow crosses Admin, ORM/database, API, and
 Next storefront/gallery checks, then removes temporary records and media and
 verifies the canonical concept baseline. This certification does not onboard
 real inventory and does not resume Phase 16.
+
+## Premium owner dashboard
+
+The Admin home page is presented as the Aurevia Owner Dashboard while
+remaining entirely within Django Admin. It uses a restrained ivory, charcoal,
+and champagne-gold design system with visible focus states, responsive panels,
+semantic status text, and reduced-motion support. The dashboard contains only
+catalog metrics: Products, Published, Categories, Collections, Images, health,
+media provenance, permission-aware shortcuts, catalog management links, and
+recent catalog activity. It intentionally contains no sales, revenue, order,
+customer, or conversion metrics.
+
+The shared Aurevia Admin styling also applies to the login page, changelists,
+forms, filters, navigation, buttons, and media presentation. Product lists
+show safe primary-image thumbnails with an accessible fallback, readable Draft
+or Published badges, canonical readiness badges, and accurate provenance
+badges. Product editing is grouped into Identity, Catalog, Pricing, Content,
+Product Details, Discovery, Merchandising, SEO, Media manager, Publishing,
+and System sections without changing model or validation behavior.

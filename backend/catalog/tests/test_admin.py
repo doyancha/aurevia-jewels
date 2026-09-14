@@ -146,6 +146,52 @@ class CatalogAdminTests(TestCase):
         self.assertEqual(collection.member_product_count(collection_row), 1)
         product.delete()
 
+    def test_premium_dashboard_regions_use_live_metrics_and_no_commerce_metrics(self):
+        response = self.client.get(reverse("admin:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "aurevia-dashboard")
+        self.assertContains(response, "Aurevia Owner Dashboard")
+        self.assertContains(response, "Catalog health")
+        self.assertContains(response, "Media &amp; provenance")
+        self.assertContains(response, "Quick actions")
+        self.assertContains(response, "Catalog management")
+        self.assertNotContains(response, "Revenue")
+        self.assertNotContains(response, "Conversion")
+        self.assertContains(response, "Add Product")
+
+    def test_premium_login_and_product_presentation_preserve_semantics(self):
+        self.client.logout()
+        login = self.client.get(reverse("admin:login"))
+        self.assertEqual(login.status_code, 200)
+        self.assertContains(login, "Catalog Administration")
+        self.assertContains(login, 'name="csrfmiddlewaretoken"')
+        self.client.force_login(self.user)
+        product = self.create_product(is_published=True)
+        ProductImage.objects.create(product=product, source_path="/catalog/qa.png", alt_text="QA product image", is_primary=True)
+        response = self.client.get(reverse("admin:catalog_product_changelist"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "aurevia-thumb")
+        self.assertContains(response, "aurevia-badge")
+        self.assertEqual([title for title, _options in ProductAdmin.fieldsets], [
+            "Identity", "Catalog", "Pricing", "Content", "Product Details", "Discovery",
+            "Merchandising", "SEO", "Media manager", "Publishing", "System",
+        ])
+
+    def test_dashboard_quick_actions_respect_model_permissions(self):
+        restricted = get_user_model().objects.create_user(
+            username="dashboard-viewer", password="test-password", is_staff=True,
+        )
+        restricted.user_permissions.add(
+            ContentType.objects.get_for_model(Product).permission_set.get(codename="view_product")
+        )
+        self.client.force_login(restricted)
+        response = self.client.get(reverse("admin:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Run Catalog Audit")
+        self.assertNotContains(response, "Add Product")
+        self.assertNotContains(response, "Add Collection")
+        self.assertNotContains(response, "Add Category")
+
     def test_catalog_health_dashboard_is_read_only_and_permission_gated(self):
         response = self.client.get(reverse("admin:index"))
         self.assertEqual(response.status_code, 200)

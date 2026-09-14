@@ -1,40 +1,22 @@
-{% extends "admin/index.html" %}
+{% extends "admin/base_site.html" %}
 {% load i18n %}
 
+{% block bodyclass %}{{ block.super }} aurevia-dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block content_title %}{% endblock %}
 {% block content %}
-  <div id="content-main">
-    <div class="module">
-      <h2>Catalog overview</h2>
-      <table>
-        <tbody>
-          {% for label, value in catalog_health.metrics.items %}
-            <tr><th>{{ label }}</th><td>{{ value }}</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="module">
-      <h2>Catalog health</h2>
-      <p><strong>{{ catalog_health.blocked_count }}</strong> blocked · <strong>{{ catalog_health.attention_count }}</strong> attention</p>
-      <table>
-        <thead><tr><th>Check</th><th>Count</th><th>Severity</th><th>Meaning</th></tr></thead>
-        <tbody>
-          {% for item in catalog_health.issues %}
-            <tr><th>{% if item.url %}<a href="{{ item.url }}">{{ item.label }}</a>{% else %}{{ item.label }}{% endif %}</th><td>{{ item.count }}</td><td>{{ item.severity }}</td><td>{{ item.description }}</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% if recent_catalog_activity %}
-      <div class="module">
-        <h2>Recent catalog activity</h2>
-        <ul class="actionlist">
-          {% for entry in recent_catalog_activity %}
-            <li>{{ entry.action_time|date:"Y-m-d H:i" }} · {{ entry.user }} · {{ entry.change_message|default:entry.object_repr }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-    <div class="app-list">{% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}</div>
-  </div>
+<div class="aurevia-dashboard-shell">
+  <header class="aurevia-dashboard-hero">
+    <div><p class="aurevia-eyebrow">Catalog Administration</p><h1>Aurevia Owner Dashboard</h1><p class="aurevia-lede">A calm operational view of catalog readiness, media provenance, and recent administration.</p></div>
+    <a class="aurevia-button aurevia-button--secondary" href="{{ site_url }}" target="_blank" rel="noopener">View Store <span aria-hidden="true">↗</span></a>
+  </header>
+  {% if catalog_health %}
+  <section aria-labelledby="overview-heading"><div class="aurevia-section-heading"><div><p class="aurevia-eyebrow">At a glance</p><h2 id="overview-heading">Catalog overview</h2></div><span class="aurevia-live-dot">Live catalog data</span></div><div class="aurevia-metric-grid">{% for label, value, url in dashboard_metrics %}<a class="aurevia-metric-card" href="{{ url }}"><span class="aurevia-metric-label">{{ label }}</span><strong>{{ value }}</strong><span class="aurevia-card-link">Open records →</span></a>{% endfor %}</div></section>
+  <div class="aurevia-dashboard-grid"><section class="aurevia-panel aurevia-panel--health" aria-labelledby="health-heading"><div class="aurevia-section-heading"><div><p class="aurevia-eyebrow">Operational signal</p><h2 id="health-heading">Catalog health</h2></div><span class="aurevia-health-summary">{{ catalog_health.blocked_count }} blocked · {{ catalog_health.attention_count }} attention</span></div><div class="aurevia-health-list">{% for item in catalog_health.issues %}<div class="aurevia-health-row"><span class="aurevia-status-mark aurevia-status-mark--{{ item.severity|lower }}" aria-hidden="true"></span><div><strong>{% if item.url %}<a href="{{ item.url }}">{{ item.label }}</a>{% else %}{{ item.label }}{% endif %}</strong><p>{{ item.description }}</p></div><span class="aurevia-badge aurevia-badge--{{ item.severity|lower }}">{{ item.severity }} · {{ item.count }}</span></div>{% empty %}<p class="aurevia-empty-state">No health checks are available.</p>{% endfor %}</div></section>
+    <section class="aurevia-panel" aria-labelledby="provenance-heading"><div class="aurevia-section-heading"><div><p class="aurevia-eyebrow">Media &amp; provenance</p><h2 id="provenance-heading">Image inventory</h2></div></div><div class="aurevia-provenance-list">{% for label, value, modifier in dashboard_provenance %}<div><span class="aurevia-provenance-swatch aurevia-provenance-swatch--{{ modifier }}"></span><span>{{ label }}</span><strong>{{ value }}</strong></div>{% endfor %}</div><p class="aurevia-note">Representative Demo imagery is concept media and does not indicate verified inventory.</p></section></div>
+  <div class="aurevia-dashboard-grid aurevia-dashboard-grid--lower"><section class="aurevia-panel" aria-labelledby="actions-heading"><div class="aurevia-section-heading"><div><p class="aurevia-eyebrow">Shortcuts</p><h2 id="actions-heading">Quick actions</h2></div></div><div class="aurevia-action-list">{% for label, url_name, allowed in dashboard_actions %}{% if allowed %}<a class="aurevia-button aurevia-button--primary" href="{% url url_name %}">{{ label }} <span aria-hidden="true">→</span></a>{% endif %}{% endfor %}</div></section><section class="aurevia-panel" aria-labelledby="manage-heading"><div class="aurevia-section-heading"><div><p class="aurevia-eyebrow">Workspace</p><h2 id="manage-heading">Catalog management</h2></div></div><div class="aurevia-management-links"><a href="{% url 'admin:catalog_product_changelist' %}"><strong>Products</strong><span>Manage products and publication</span>→</a><a href="{% url 'admin:catalog_category_changelist' %}"><strong>Categories</strong><span>Organize product taxonomy</span>→</a><a href="{% url 'admin:catalog_collection_changelist' %}"><strong>Collections</strong><span>Curate groups and covers</span>→</a></div></section></div>
+  {% if recent_catalog_activity %}<section class="aurevia-panel aurevia-activity-panel" aria-labelledby="activity-heading"><div class="aurevia-section-heading"><div><p class="aurevia-eyebrow">Audit trail</p><h2 id="activity-heading">Recent catalog activity</h2></div><a class="aurevia-text-link" href="{% url 'admin:catalog_product_changelist' %}">Open catalog →</a></div><div class="aurevia-activity-list">{% for entry in recent_catalog_activity %}<div class="aurevia-activity-row"><span class="aurevia-activity-time">{{ entry.action_time|date:"M j, Y · H:i" }}</span><span><strong>{{ entry.user }}</strong> {{ entry.change_message|default:entry.object_repr }}</span></div>{% endfor %}</div></section>{% endif %}
+  <p class="aurevia-dashboard-footnote">Demo storefront only · Commerce systems are not active.</p>
+  {% endif %}
+</div>
 {% endblock %}

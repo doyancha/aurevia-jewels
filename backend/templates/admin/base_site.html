@@ -1,0 +1,7 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Aurevia Jewels{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/aurevia/admin.css' %}" {% csp_nonce_attr %}>{% endblock %}
+{% block branding %}<div class="aurevia-branding"><a href="{% url 'admin:index' %}" aria-label="Aurevia Jewels owner dashboard"><span class="aurevia-brand-mark">A</span><span><strong>Aurevia Jewels</strong><small>Catalog Administration</small></span></a></div>{% endblock %}
+{% block usertools %}{% if has_permission %}<div id="user-tools" class="aurevia-user-tools"><span class="aurevia-welcome">{% translate 'Welcome,' %} <strong>{% firstof user.get_short_name user.get_username %}</strong></span><a href="{{ site_url }}" target="_blank" rel="noopener">View Store</a>{% if user.has_usable_password %}<a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a>{% endif %}<form id="logout-form" method="post" action="{% url 'admin:logout' %}">{% csrf_token %}<button type="submit">{% translate 'Log out' %}</button></form></div>{% endif %}{% endblock %}
+{% block nav-global %}{% endblock %}
