@@ -159,6 +159,13 @@ class CatalogAdminTests(TestCase):
         self.assertNotContains(response, "Conversion")
         self.assertContains(response, "Add Product")
 
+    def test_view_store_links_use_resolved_development_storefront_url(self):
+        response = self.client.get(reverse("admin:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["site_url"], "http://localhost:3000")
+        self.assertEqual(response.content.decode().count('href="http://localhost:3000"'), 2)
+        self.assertNotContains(response, "http://127.0.0.1:3000")
+
     def test_premium_login_and_product_presentation_preserve_semantics(self):
         self.client.logout()
         login = self.client.get(reverse("admin:login"))

@@ -33,6 +33,10 @@ body { background: var(--aurevia-bg); color: var(--aurevia-text); font-family: I
   --aurevia-field-bg: #ffffff; --aurevia-field-text: #25231f;
   --aurevia-table-bg: #fffdfa; --aurevia-table-row-alt: #faf7f1; --aurevia-table-text: #25231f;
   --aurevia-filter-bg: #2b2a27; --aurevia-filter-text: #eee7dc;
+  --aurevia-nav-bg: var(--aurevia-surface); --aurevia-nav-text: #25231f;
+  --aurevia-nav-text-muted: #625d55; --aurevia-nav-text-active: #805d2e; --aurevia-nav-link-hover: #4d3a21;
+  --aurevia-action-gold-bg: #705126; --aurevia-action-gold-text: #fffdfa;
+  --aurevia-action-gold-hover-bg: #513b1d; --aurevia-action-gold-hover-text: #fffdfa;
   --aurevia-surface-dark-hover: #3b3833; --aurevia-table-head: #f1eee9; --aurevia-table-selected: #f1eadf;
   --aurevia-field-border: #bdb5aa; --aurevia-field-disabled-bg: #ece8e1; --aurevia-readonly-bg: #f3f0eb;
   --aurevia-danger-hover: #8f3d38; --aurevia-error-bg: #f5e2df; --aurevia-error-text: #7e2d29; --aurevia-error-border: #d7a7a1;
@@ -60,9 +64,14 @@ body, #container, #content, #content-main, .module, #changelist, #result_list, .
 .small, .datetime, .inline-related .delete { color: var(--aurevia-text-on-light-muted); }
 
 #header, #branding, #branding a, #header #user-tools, #header #user-tools a, #header #user-tools button { color: var(--aurevia-text-on-dark); }
-#header #user-tools a, #header #user-tools button, #nav-sidebar a, #nav-sidebar th { color: var(--aurevia-link-on-dark); }
-#nav-sidebar { background: var(--aurevia-filter-bg); border-right-color: var(--aurevia-border-dark); color: var(--aurevia-filter-text); }
-#nav-sidebar a:hover, #nav-sidebar a:focus, #nav-sidebar .current-model a { background: var(--aurevia-surface-dark-hover); color: var(--aurevia-text-on-dark); }
+#header #user-tools a, #header #user-tools button { color: var(--aurevia-link-on-dark); }
+#nav-sidebar { background: var(--aurevia-nav-bg); border-right-color: var(--aurevia-border-light); color: var(--aurevia-nav-text); }
+#nav-sidebar a, #nav-sidebar th, #nav-sidebar .module td, #nav-sidebar .module caption { color: var(--aurevia-nav-text); }
+#nav-sidebar .current-app .section:link, #nav-sidebar .current-app .section:visited { color: var(--aurevia-nav-text-active); }
+#nav-sidebar .current-model { background: var(--aurevia-table-selected); border-left: 2px solid var(--aurevia-gold); }
+#nav-sidebar .addlink { color: var(--aurevia-nav-text-active); }
+#nav-sidebar a:hover, #nav-sidebar a:focus, #nav-sidebar .current-model a { background: var(--aurevia-soft); color: var(--aurevia-nav-link-hover); }
+#nav-sidebar #nav-filter { background: var(--aurevia-field-bg); color: var(--aurevia-field-text); border-color: var(--aurevia-field-border); }
 .breadcrumbs { background: transparent; color: var(--aurevia-text-on-light-muted); }
 .breadcrumbs a, .breadcrumbs a:link, .breadcrumbs a:visited { color: var(--aurevia-link-on-light); }
 
@@ -88,12 +97,14 @@ fieldset.module h2, .module h2, .module caption, .inline-group h2, fieldset .fie
 .readonly { background: var(--aurevia-readonly-bg); color: var(--aurevia-text-on-light); border-radius: var(--aurevia-radius-sm); padding: 6px 8px; }
 ul.errorlist, .errorlist, .errornote { background: var(--aurevia-error-bg); color: var(--aurevia-error-text); border-color: var(--aurevia-error-border); }
 ul.errorlist li, .errorlist li, .errornote a { color: var(--aurevia-error-text); }
-.object-tools a, .object-tools a:link, .object-tools a:visited { background: var(--aurevia-gold); color: var(--aurevia-text-on-dark); }
-.object-tools a:hover, .object-tools a:focus { background: var(--aurevia-gold-hover); color: var(--aurevia-text-on-dark); }
+.object-tools a, .object-tools a:link, .object-tools a:visited { background: var(--aurevia-action-gold-bg); color: var(--aurevia-action-gold-text); }
+.object-tools a:hover, .object-tools a:focus { background: var(--aurevia-action-gold-hover-bg); color: var(--aurevia-action-gold-hover-text); }
 .submit-row { background: var(--aurevia-soft); color: var(--aurevia-text-on-light); }
 .submit-row input, .submit-row a, .submit-row a:link, .submit-row a:visited { color: var(--aurevia-text-on-light); }
-.submit-row input.default, .submit-row input[type="submit"] { background: var(--aurevia-gold); color: var(--aurevia-text-on-dark); }
+.submit-row input.default, .submit-row input[type="submit"] { background: var(--aurevia-action-gold-bg); color: var(--aurevia-action-gold-text); }
 .submit-row a.deletelink, .submit-row a.deletelink:link, .submit-row a.deletelink:visited { background: transparent; color: var(--aurevia-danger); }
+.aurevia-button--primary, .aurevia-button--primary:link, .aurevia-button--primary:visited { background: var(--aurevia-action-gold-bg); color: var(--aurevia-action-gold-text); }
+.aurevia-button--primary:hover, .aurevia-button--primary:focus { background: var(--aurevia-action-gold-hover-bg); color: var(--aurevia-action-gold-hover-text); }
 .messagelist .success, .messagelist .info, .messagelist .warning, .messagelist .error { color: var(--aurevia-text-on-light); border-color: var(--aurevia-border-light); }
 .paginator, .paginator a, .paginator a:link, .paginator a:visited, .paginator .this-page { color: var(--aurevia-text-on-light); }
 .paginator a:hover, .paginator a:focus, .paginator .this-page { background: var(--aurevia-soft); border-color: var(--aurevia-border-light); }
