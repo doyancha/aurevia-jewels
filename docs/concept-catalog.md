@@ -46,6 +46,13 @@ Run the local non-mutating structural check from the repository root:
 node scripts/validate-concept-catalog.mjs
 ```
 
+The full concept preview check is also available through
+`npm run verify:concept-preview`. It validates the concept package, its
+representative-demo image mirrors, and public static asset serving
+independently from the runtime catalog API. The runtime catalog and this
+concept package intentionally use separate product-code namespaces and must
+not be joined by `product_code` or imported into the production database.
+
 The Phase 16 Django onboarding validator is intentionally not used as an
 import command for this package: it requires verified photography and rejects
 `representative_demo` provenance by design. If run against this concept CSV it
@@ -57,4 +64,3 @@ counts, uniqueness, booleans, prices, and demo provenance.
 
 Phase 16 remains paused for owner-approved real product data and photography.
 Phase 17 was not started.
-
