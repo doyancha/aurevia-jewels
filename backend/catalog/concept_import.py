@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import shutil
 import struct
 from pathlib import Path
 from decimal import Decimal
@@ -106,10 +107,25 @@ def load_concept(root: Path) -> dict:
     return {"root": root, "products": products, "categories": categories, "collections": collections, "images": images}
 
 
+def sync_public_mirror(data: dict) -> int:
+    """Make every declared concept image available to the local Next public tree."""
+    package_root = Path(data["root"]).resolve()
+    public_root = package_root.parents[2] / "public" / "catalog" / "concept-demo"
+    copied = 0
+    for image in data["images"]:
+        destination = public_root / image["code"] / image["path"].name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if not destination.is_file() or destination.read_bytes() != image["path"].read_bytes():
+            shutil.copyfile(image["path"], destination)
+            copied += 1
+    return copied
+
+
 def reconcile_concept(data: dict, *, dry_run: bool) -> dict[str, int]:
     """Reconcile only catalog rows without touching remote media."""
     if dry_run:
-        return {"categories": 8, "collections": 8, "products": 24, "images": len(data["images"])}
+        return {"categories": 8, "collections": 8, "products": 24, "images": len(data["images"]), "public_images": len(data["images"])}
+    public_images = sync_public_mirror(data)
     with transaction.atomic():
         category_map = {}
         for index, row in enumerate(data["categories"]):
@@ -150,4 +166,4 @@ def reconcile_concept(data: dict, *, dry_run: bool) -> dict[str, int]:
                 primary = member.images.filter(is_primary=True).first()
                 collection.legacy_image_path = primary.source_path if primary else ""
                 collection.save(update_fields=["legacy_image_path", "updated_at"])
-    return {"categories": 8, "collections": 8, "products": 24, "images": len(data["images"])}
+    return {"categories": 8, "collections": 8, "products": 24, "images": len(data["images"]), "public_images": public_images}

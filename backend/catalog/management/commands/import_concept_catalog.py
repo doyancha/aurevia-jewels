@@ -34,6 +34,6 @@ class Command(BaseCommand):
         except (ConceptImportError, FileNotFoundError, KeyError) as exc:
             raise CommandError(f"Concept package validation failed; no writes performed: {exc}") from exc
         mode = "DRY RUN PASS" if options["dry_run"] else "LOCAL APPLY PASS"
-        self.stdout.write(self.style.SUCCESS(f"{mode}: Categories={counts['categories']} Collections={counts['collections']} Products={counts['products']} ProductImages={counts['images']}"))
+        self.stdout.write(self.style.SUCCESS(f"{mode}: Categories={counts['categories']} Collections={counts['collections']} Products={counts['products']} ProductImages={counts['images']} PublicImages={counts['public_images']}"))
         if not options["dry_run"]:
             self.stdout.write("Local preview publish state: 24; commercial ordering remains disabled by siteConfig.isDemo.")

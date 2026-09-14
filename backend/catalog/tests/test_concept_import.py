@@ -8,6 +8,8 @@ from django.core.management import call_command, CommandError
 from django.test import SimpleTestCase, TestCase, override_settings
 
 from catalog.concept_import import load_concept
+from catalog.api.serializers import ProductSerializer
+from catalog.api.views import public_product_queryset
 from catalog.models import Collection, ProductImage
 
 
@@ -38,6 +40,15 @@ class ConceptImportImageTests(TestCase):
         self.assertEqual(Collection.objects.exclude(legacy_image_path="").count(), 8)
         self.assertEqual(ProductImage.objects.filter(provenance_status="representative_demo").count(), 72)
         self.assertTrue(Collection.objects.first().legacy_image_path.endswith("/01.png"))
+        self.assertEqual(sum(len(ProductSerializer(product).data["images"]) for product in public_product_queryset()), 72)
+        self.assertEqual(ProductImage.objects.filter(is_primary=True).count(), 24)
+
+    def test_apply_keeps_public_mirror_in_sync(self):
+        call_command("import_concept_catalog", PACKAGE, "--apply", "--local-only", "--settings=config.settings.development")
+        for image in ProductImage.objects.select_related("product").all():
+            mirror = ROOT / "public" / image.source_path.lstrip("/")
+            self.assertTrue(mirror.is_file(), mirror)
+            self.assertEqual(mirror.read_bytes(), (PACKAGE / "images" / image.product.product_code / mirror.name).read_bytes())
 
     def test_manifest_accepts_three_ordered_images_when_supplied(self):
         with TemporaryDirectory() as directory:
